@@ -1,9 +1,11 @@
 package com.builtbroken.region.blacklist;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
@@ -34,14 +36,35 @@ public class RegionItems
 		this(world, region.getId());
 	}
 
-	public void removeItems()
+	/** Removes all banned items from the player */
+	public void removeItems(String user)
 	{
-
+		removeItems(getPlayer(user));
 	}
 
-	public void returnItems()
+	/** Returns all banned items from the player */
+	public void returnItems(String user)
 	{
+		returnItems(getPlayer(user));
+	}
 
+	/** Removes all banned items from the player */
+	public void removeItems(Player player)
+	{
+	}
+
+	/** Returns all banned items from the player */
+	public void returnItems(Player player)
+	{
+		if (player != null)
+		{
+			Iterator<ItemStack> it = heldItems.iterator();
+			while (it.hasNext())
+			{
+				ItemStack stack = it.next();
+				player.getInventory().addItem(stack);
+			}
+		}
 	}
 
 	public ProtectedRegion getRegion()
@@ -56,6 +79,11 @@ public class RegionItems
 			}
 		}
 		return null;
+	}
+
+	public Player getPlayer(String user)
+	{
+		return PluginRegionBlacklist.instance().getServer().getPlayer(user);
 	}
 
 	public boolean isEmpty()

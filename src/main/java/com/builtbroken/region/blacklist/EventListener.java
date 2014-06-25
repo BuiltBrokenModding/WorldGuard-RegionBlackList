@@ -78,15 +78,21 @@ public class EventListener implements Listener
 					while (it.hasNext())
 					{
 						ProtectedRegion r = oo.next();
+						//Compare region id
 						if (region.equals(r))
 						{
-							found = true;
+							//check to make sure the region still has either flag
+							if (r.getFlags().containsKey(PluginRegionBlacklist.DENY_ITEM_FLAG) || r.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG))
+							{
+								found = true;
+							}
 							break;
 						}
 					}
+					//If not found or empty clear region
 					if (!found || region.isEmpty())
 					{
-						region.returnItems();
+						region.returnItems(player);
 						if (region.isEmpty())
 							it.remove();
 					}
@@ -104,7 +110,7 @@ public class EventListener implements Listener
 	{
 		clearPlayer(evt.getPlayer().getName());
 	}
-	
+
 	@EventHandler
 	public void onKicked(PlayerKickEvent evt)
 	{
@@ -129,7 +135,7 @@ public class EventListener implements Listener
 				while (it.hasNext())
 				{
 					RegionItems region = it.next();
-					region.returnItems();
+					region.returnItems(playerName);
 					if (region.isEmpty())
 					{
 						it.remove();
