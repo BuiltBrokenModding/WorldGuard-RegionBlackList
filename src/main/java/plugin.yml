@@ -1,0 +1,6 @@
+name: InventoryRegion
+version: "0.0.1"
+main: inventoryregion.common.PluginRegionInventory
+depend: [ WorldGuard , WGCustomFlags ]
+softdepend: [ WorldEdit ]
+authors: [ DarkGuardsman ]
