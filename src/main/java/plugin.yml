@@ -1,6 +1,6 @@
 name: InventoryRegion
-version: "0.0.1"
-main: inventoryregion.common.PluginRegionInventory
+version: "0.0.3"
+main: com.builtbroken.region.blacklist.PluginRegionBlacklist
 depend: [ WorldGuard , WGCustomFlags ]
 softdepend: [ WorldEdit ]
 authors: [ DarkGuardsman ]

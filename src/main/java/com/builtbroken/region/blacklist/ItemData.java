@@ -1,4 +1,4 @@
-package inventoryregion.common;
+package com.builtbroken.region.blacklist;
 
 import org.bukkit.inventory.ItemStack;
 

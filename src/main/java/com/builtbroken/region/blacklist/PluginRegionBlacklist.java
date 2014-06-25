@@ -1,4 +1,4 @@
-package inventoryregion.common;
+package com.builtbroken.region.blacklist;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -17,15 +17,15 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
  * @since 6/24/2014
  * @author Robert Seifert 
  */
-public class PluginRegionInventory extends JavaPlugin
+public class PluginRegionBlacklist extends JavaPlugin
 {
 	public static final ItemFlag ALLOW_ITEM_FLAG = new ItemFlag("allow-items");
 	public static final ItemFlag DENY_ITEM_FLAG = new ItemFlag("deny-items");
-	private static PluginRegionInventory instance;
+	private static PluginRegionBlacklist instance;
 	private EventListener listener;
 	private PluginLogger logger;
 
-	public static PluginRegionInventory instance()
+	public static PluginRegionBlacklist instance()
 	{
 		return instance;
 	}

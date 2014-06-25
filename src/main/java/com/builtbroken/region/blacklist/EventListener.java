@@ -1,4 +1,4 @@
-package inventoryregion.common;
+package com.builtbroken.region.blacklist;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -21,7 +21,7 @@ public class EventListener implements Listener
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent event)
 	{
-		WorldGuardPlugin guard = PluginRegionInventory.instance().getWorldGuard();
+		WorldGuardPlugin guard = PluginRegionBlacklist.instance().getWorldGuard();
 		if (guard != null && event.getPlayer() != null)
 		{
 			RegionManager manager = guard.getRegionManager(event.getPlayer().getWorld());
@@ -41,11 +41,11 @@ public class EventListener implements Listener
 						{
 							event.getPlayer().sendMessage("\tFlag: " + entry.getKey().getClass().getSimpleName() + " Value: " + entry.getValue());
 						}
-						if (region.getFlags().containsKey(PluginRegionInventory.ALLOW_ITEM_FLAG))
+						if (region.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG))
 						{
 							event.getPlayer().sendMessage("Region has Item Allow flag");
 						}
-						else if (region.getFlags().containsKey(PluginRegionInventory.DENY_ITEM_FLAG))
+						else if (region.getFlags().containsKey(PluginRegionBlacklist.DENY_ITEM_FLAG))
 						{
 							event.getPlayer().sendMessage("Region has Item Deny flag");
 						}
