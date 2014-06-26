@@ -32,26 +32,29 @@ public class ItemFlag extends CustomFlag<List<ItemData>>
 		String[] stacks = arg0.split(",");
 		for (String stack : stacks)
 		{
-			String[] data = stack.split(":");
-			int id = Integer.parseInt(data[0]);
-			int meta = -1;
-			boolean allMeta = false;
-			if (data.length > 1)
+			if (stack != null && !stack.isEmpty() && !stack.equalsIgnoreCase(""))
 			{
-				if (data[1].equalsIgnoreCase("all"))
+				String[] data = stack.split(":");
+				int id = Integer.parseInt(data[0]);
+				int meta = -1;
+				boolean allMeta = false;
+				if (data.length > 1)
+				{
+					if (data[1].equalsIgnoreCase("all"))
+					{
+						allMeta = true;
+					}
+					else if (data[1] != null && !data[1].isEmpty() && !data[1].equalsIgnoreCase(""))
+					{
+						meta = Integer.parseInt(data[1]);
+					}
+				}
+				if (meta == -1)
 				{
 					allMeta = true;
 				}
-				else if (data[1] != null && !data[1].isEmpty() && !data[1].equalsIgnoreCase(""))
-				{
-					meta = Integer.parseInt(data[1]);
-				}
+				itemList.add(new ItemData(new ItemStack(id, 1, (short) meta), allMeta));
 			}
-			if (meta == -1)
-			{
-				allMeta = true;
-			}
-			itemList.add(new ItemData(new ItemStack(id, 1, (short) meta), allMeta));
 		}
 		return itemList;
 	}
