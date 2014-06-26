@@ -53,17 +53,23 @@ public class RegionItems
 	/** Removes all banned items from the player */
 	public void removeItems(Player player)
 	{
+		System.out.println("\t\tRemoving items from player");
 		if (player != null)
 		{
 			player.sendMessage("Stripping items");
 			List<ItemData> list = getData();
 			for (ItemData data : list)
 			{
-				HashMap<Integer, ? extends ItemStack> slotStacks = player.getInventory().all(data.stack());
-				for(Entry<Integer, ? extends ItemStack> entry : slotStacks.entrySet())
+				System.out.println("\t\t\tData: " + data.stack());
+				HashMap<Integer, ? extends ItemStack> slotStacks = player.getInventory().all(data.stack().getTypeId());
+				for (Entry<Integer, ? extends ItemStack> entry : slotStacks.entrySet())
 				{
-					this.heldItems.add(entry.getValue());
-					player.getInventory().setItem(entry.getKey(), null);
+					System.out.println("\t\t\tPlayerItem: " + entry.getValue() + " Slot: " + entry.getKey());
+					if (data.allMeta() || entry.getValue().getItemMeta() == data.stack().getItemMeta())
+					{
+						this.heldItems.add(entry.getValue());
+						player.getInventory().setItem(entry.getKey(), null);
+					}
 				}
 			}
 		}
@@ -80,6 +86,7 @@ public class RegionItems
 			{
 				ItemStack stack = it.next();
 				player.getInventory().addItem(stack);
+				it.remove();
 			}
 		}
 	}
