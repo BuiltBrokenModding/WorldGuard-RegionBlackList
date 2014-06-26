@@ -56,14 +56,17 @@ public class EventListener implements Listener
 
 			if (manager != null)
 			{
+				System.out.println("Has Manager now checking for new regions");
 				// Look for new regions that the player is now in
 				ApplicableRegionSet set = manager.getApplicableRegions(vec);
 				Iterator<ProtectedRegion> proIt = set.iterator();
 				while (proIt.hasNext())
 				{
 					ProtectedRegion region = proIt.next();
+					System.out.println("\tRegion: " + region.getId());
 					if (!regions.contains(region) && (region.getFlags().containsKey(PluginRegionBlacklist.DENY_ITEM_FLAG) || region.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG)))
 					{
+						System.out.println("\t  Not Found adding to list");
 						regions.add(new RegionItems(player.getWorld(), region));
 					}
 				}
@@ -89,6 +92,10 @@ public class EventListener implements Listener
 							break;
 						}
 					}
+					if(found)
+					{
+						itemRegion.removeItems(player);
+					}
 					// If not found or empty clear region
 					if (!found || itemRegion.isEmpty())
 					{
@@ -100,6 +107,7 @@ public class EventListener implements Listener
 			}
 			else
 			{
+				System.out.println("No Manger");
 				clearPlayer(player);
 			}
 			if (regions != null && !regions.isEmpty())

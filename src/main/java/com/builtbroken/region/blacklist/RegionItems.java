@@ -1,8 +1,10 @@
 package com.builtbroken.region.blacklist;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -44,14 +46,27 @@ public class RegionItems
 
 	/** Returns all banned items from the player */
 	public void returnItems(String user)
-	{		
+	{
 		returnItems(getPlayer(user));
 	}
 
 	/** Removes all banned items from the player */
 	public void removeItems(Player player)
 	{
-		player.sendMessage("Stripping items");
+		if (player != null)
+		{
+			player.sendMessage("Stripping items");
+			List<ItemData> list = getData();
+			for (ItemData data : list)
+			{
+				HashMap<Integer, ? extends ItemStack> slotStacks = player.getInventory().all(data.stack());
+				for(Entry<Integer, ? extends ItemStack> entry : slotStacks.entrySet())
+				{
+					this.heldItems.add(entry.getValue());
+					player.getInventory().setItem(entry.getKey(), null);
+				}
+			}
+		}
 	}
 
 	/** Returns all banned items from the player */
@@ -67,6 +82,36 @@ public class RegionItems
 				player.getInventory().addItem(stack);
 			}
 		}
+	}
+
+	public boolean denyList()
+	{
+		ProtectedRegion region = getRegion();
+		if (region != null)
+		{
+			if (region.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public List<ItemData> getData()
+	{
+		ProtectedRegion region = getRegion();
+		if (region != null)
+		{
+			if (region.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG))
+			{
+				return (List<ItemData>) region.getFlags().get(PluginRegionBlacklist.ALLOW_ITEM_FLAG);
+			}
+			else if (region.getFlags().containsKey(PluginRegionBlacklist.DENY_ITEM_FLAG))
+			{
+				return (List<ItemData>) region.getFlags().get(PluginRegionBlacklist.DENY_ITEM_FLAG);
+			}
+		}
+		return null;
 	}
 
 	public ProtectedRegion getRegion()
