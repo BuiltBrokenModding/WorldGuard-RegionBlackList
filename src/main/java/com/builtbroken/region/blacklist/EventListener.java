@@ -56,42 +56,34 @@ public class EventListener implements Listener
 
 			if (manager != null)
 			{
-				System.out.println("Has Manager now checking for new regions");
 				// Look for new regions that the player is now in
 				ApplicableRegionSet set = manager.getApplicableRegions(vec);
 				Iterator<ProtectedRegion> proIt = set.iterator();
 				while (proIt.hasNext())
 				{
 					ProtectedRegion region = proIt.next();
-					System.out.println("\tRegion: " + region.getId());
 					if (!regions.contains(region) && (region.getFlags().containsKey(PluginRegionBlacklist.DENY_ITEM_FLAG) || region.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG)))
 					{
-						System.out.println("\t  Not Found adding to list");
 						regions.add(new RegionItems(player.getWorld(), region));
 					}
 				}
 
-				System.out.println("Testing for regions to remove");
 				// check for regions the player has left so to return items
 				Iterator<RegionItems> regIt = regions.iterator();
 				while (regIt.hasNext())
 				{
 					RegionItems itemRegion = regIt.next();
-					System.out.println("\tItemRegion: " + itemRegion.regionName);
 					Iterator<ProtectedRegion> oo = set.iterator();
 					boolean found = false;
 					while (oo.hasNext())
 					{
 						ProtectedRegion region = oo.next();
-						System.out.println("\t\tRegion: " + region.getId());
 						// Compare region id
 						if (itemRegion.equals(region))
 						{
-							System.out.println("\t\tEquals");
 							// check to make sure the region still has either flag
 							if (region.getFlags().containsKey(PluginRegionBlacklist.DENY_ITEM_FLAG) || region.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG))
 							{
-								System.out.println("\t\tFound");
 								found = true;
 							}
 							break;
@@ -99,13 +91,11 @@ public class EventListener implements Listener
 					}
 					if(found)
 					{
-						System.out.println("\tTaking items from player");
 						itemRegion.removeItems(player);
 					}
 					// If not found or empty clear region
 					if (!found)
 					{
-						System.out.println("\tClearing region");
 						itemRegion.returnItems(player);
 						if (itemRegion.isEmpty())
 							regIt.remove();
@@ -114,7 +104,6 @@ public class EventListener implements Listener
 			}
 			else
 			{
-				System.out.println("No Manger");
 				clearPlayer(player);
 			}
 			if (regions != null && !regions.isEmpty())
