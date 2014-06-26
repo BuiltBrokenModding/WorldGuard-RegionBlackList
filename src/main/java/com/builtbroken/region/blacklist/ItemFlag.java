@@ -2,6 +2,7 @@ package com.builtbroken.region.blacklist;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.bukkit.command.CommandSender;
@@ -14,7 +15,6 @@ import com.sk89q.worldguard.protection.flags.RegionGroup;
 
 public class ItemFlag extends CustomFlag<List<ItemData>>
 {
-
 	public ItemFlag(String name)
 	{
 		super(name);
@@ -34,7 +34,7 @@ public class ItemFlag extends CustomFlag<List<ItemData>>
 		{
 			String[] data = stack.split(":");
 			int id = Integer.parseInt(data[0]);
-			short meta = 0;
+			int meta = -1;
 			boolean allMeta = false;
 			if (data.length > 1)
 			{
@@ -42,16 +42,16 @@ public class ItemFlag extends CustomFlag<List<ItemData>>
 				{
 					allMeta = true;
 				}
-				else
+				else if (data[1] != null && !data[1].isEmpty() && !data[1].equalsIgnoreCase(""))
 				{
-					meta = Short.parseShort(data[1]);
+					meta = Integer.parseInt(data[1]);
 				}
 			}
-			else
+			if (meta == -1)
 			{
 				allMeta = true;
 			}
-			itemList.add(new ItemData(new ItemStack(id, 1, meta), allMeta));
+			itemList.add(new ItemData(new ItemStack(id, 1, (short) meta), allMeta));
 		}
 		return itemList;
 	}
@@ -87,18 +87,33 @@ public class ItemFlag extends CustomFlag<List<ItemData>>
 	{
 		try
 		{
-			return loadFromDb(arg2);
+			return loadFromDb(arg2.replace(" ", ""));
 		}
 		catch (NumberFormatException e)
 		{
-			throw new InvalidFlagFormat("Invalid parse for itemstack");
+			throw new InvalidFlagFormat("Invalid input! Formate is 'id:meta' or 'id:all' or 'id' seperated by commas");
 		}
 	}
 
 	@Override
 	public List<ItemData> unmarshal(Object arg0)
 	{
-		return (List<ItemData>) arg0;
+		try
+		{
+			if (arg0 instanceof String)
+			{
+				return this.loadFromDb((String) arg0);
+			}
+			if (arg0 instanceof List<?>)
+			{
+				return (List<ItemData>) arg0;
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return new LinkedList<ItemData>();
 	}
 
 	@Override

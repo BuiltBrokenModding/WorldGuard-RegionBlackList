@@ -48,7 +48,7 @@ public class EventListener implements Listener
 			RegionManager manager = guard.getRegionManager(player.getWorld());
 
 			// Get player's existing region data
-			List<RegionItems> regions = new LinkedList<RegionItems>();
+			LinkedList<RegionItems> regions = new LinkedList<RegionItems>();
 			if (playerItemsPerRegion.containsKey(player.getName()))
 			{
 				regions = playerItemsPerRegion.get(player.getName());
@@ -58,10 +58,10 @@ public class EventListener implements Listener
 			{
 				// Look for new regions that the player is now in
 				ApplicableRegionSet set = manager.getApplicableRegions(vec);
-				Iterator<ProtectedRegion> it = set.iterator();
-				while (it.hasNext())
+				Iterator<ProtectedRegion> proIt = set.iterator();
+				while (proIt.hasNext())
 				{
-					ProtectedRegion region = it.next();
+					ProtectedRegion region = proIt.next();
 					if (!regions.contains(region) && (region.getFlags().containsKey(PluginRegionBlacklist.DENY_ITEM_FLAG) || region.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG)))
 					{
 						regions.add(new RegionItems(player.getWorld(), region));
@@ -69,32 +69,32 @@ public class EventListener implements Listener
 				}
 
 				// check for regions the player has left so to return items
-				Iterator<RegionItems> reg = regions.iterator();
-				while (reg.hasNext())
+				Iterator<RegionItems> regIt = regions.iterator();
+				while (regIt.hasNext())
 				{
-					RegionItems region = reg.next();
+					RegionItems itemRegion = regIt.next();
 					Iterator<ProtectedRegion> oo = set.iterator();
 					boolean found = false;
-					while (it.hasNext())
+					while (oo.hasNext())
 					{
-						ProtectedRegion r = oo.next();
-						//Compare region id
-						if (region.equals(r))
+						ProtectedRegion region = oo.next();
+						// Compare region id
+						if (itemRegion.equals(region))
 						{
-							//check to make sure the region still has either flag
-							if (r.getFlags().containsKey(PluginRegionBlacklist.DENY_ITEM_FLAG) || r.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG))
+							// check to make sure the region still has either flag
+							if (region.getFlags().containsKey(PluginRegionBlacklist.DENY_ITEM_FLAG) || region.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG))
 							{
 								found = true;
 							}
 							break;
 						}
 					}
-					//If not found or empty clear region
-					if (!found || region.isEmpty())
+					// If not found or empty clear region
+					if (!found || itemRegion.isEmpty())
 					{
-						region.returnItems(player);
-						if (region.isEmpty())
-							it.remove();
+						itemRegion.returnItems(player);
+						if (itemRegion.isEmpty())
+							regIt.remove();
 					}
 				}
 			}
@@ -102,6 +102,8 @@ public class EventListener implements Listener
 			{
 				clearPlayer(player);
 			}
+			if (regions != null && !regions.isEmpty())
+				this.playerItemsPerRegion.put(player.getName(), regions);
 		}
 	}
 

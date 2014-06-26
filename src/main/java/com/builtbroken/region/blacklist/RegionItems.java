@@ -44,13 +44,14 @@ public class RegionItems
 
 	/** Returns all banned items from the player */
 	public void returnItems(String user)
-	{
+	{		
 		returnItems(getPlayer(user));
 	}
 
 	/** Removes all banned items from the player */
 	public void removeItems(Player player)
 	{
+		player.sendMessage("Stripping items");
 	}
 
 	/** Returns all banned items from the player */
@@ -58,6 +59,7 @@ public class RegionItems
 	{
 		if (player != null)
 		{
+			player.sendMessage("Returning items");
 			Iterator<ItemStack> it = heldItems.iterator();
 			while (it.hasNext())
 			{
