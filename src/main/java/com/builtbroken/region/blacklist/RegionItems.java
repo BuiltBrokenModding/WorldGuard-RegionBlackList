@@ -56,19 +56,39 @@ public class RegionItems
 		System.out.println("\t\tRemoving items from player");
 		if (player != null)
 		{
+			boolean denyList = denyList();
 			player.sendMessage("Stripping items");
 			List<ItemData> list = getData();
 			for (ItemData data : list)
 			{
 				System.out.println("\t\t\tData: " + data.stack());
-				HashMap<Integer, ? extends ItemStack> slotStacks = player.getInventory().all(data.stack().getTypeId());
-				for (Entry<Integer, ? extends ItemStack> entry : slotStacks.entrySet())
+				for (int slot = 0; slot < player.getInventory().getContents().length; slot++)
 				{
-					System.out.println("\t\t\tPlayerItem: " + entry.getValue() + " Slot: " + entry.getKey());
-					if (data.allMeta() || entry.getValue().getItemMeta() == data.stack().getItemMeta())
+					ItemStack stack = player.getInventory().getContents()[slot];
+					if (stack != null)
 					{
-						this.heldItems.add(entry.getValue());
-						player.getInventory().setItem(entry.getKey(), null);
+						System.out.println("\t\t\tPlayerItem: " + stack + " Slot: " + slot);
+						boolean match = stack.getTypeId() == data.stack().getTypeId() && (data.allMeta() || stack.getItemMeta() == data.stack().getItemMeta());
+
+						if (match)
+						{
+							if (denyList)
+							{
+								System.out.println("\t\t\tDenied");
+								this.heldItems.add(stack);
+								player.getInventory().setItem(slot, null);
+							}
+							else
+							{
+								System.out.println("\t\t\tAllowed");
+							}
+						}
+						else if (!denyList)
+						{
+							this.heldItems.add(stack);
+							player.getInventory().setItem(slot, null);
+							System.out.println("\t\t\tDenied");
+						}
 					}
 				}
 			}
@@ -78,7 +98,7 @@ public class RegionItems
 	/** Returns all banned items from the player */
 	public void returnItems(Player player)
 	{
-		if (player != null)
+		if (player != null && !this.isEmpty())
 		{
 			player.sendMessage("Returning items");
 			Iterator<ItemStack> it = heldItems.iterator();

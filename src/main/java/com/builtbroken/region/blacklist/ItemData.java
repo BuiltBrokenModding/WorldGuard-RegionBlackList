@@ -34,4 +34,9 @@ public class ItemData
 		return allMeta;
 	}
 
+	@Override
+	public String toString()
+	{
+		return stack.getTypeId() + (allMeta ? "" : ":" + stack.getItemMeta());
+	}
 }
