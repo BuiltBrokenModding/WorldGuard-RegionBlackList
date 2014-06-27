@@ -24,6 +24,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 public class EventListener implements Listener
 {
 	private HashMap<String, LinkedList<RegionItems>> playerItemsPerRegion = new LinkedHashMap<String, LinkedList<RegionItems>>();
+	private HashMap<String, Vector> playerLocation = new LinkedHashMap<String, Vector>();
 
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent event)
@@ -40,74 +41,87 @@ public class EventListener implements Listener
 	/** Updated item data for player */
 	public void update(Player player)
 	{
-		WorldGuardPlugin guard = PluginRegionBlacklist.instance().getWorldGuard();
-		if (guard != null && player != null)
+		if (player != null)
 		{
+			Vector lastLocation = null;
 			Location loc = player.getLocation();
 			Vector vec = new Vector(loc.getX(), loc.getY(), loc.getZ());
-			RegionManager manager = guard.getRegionManager(player.getWorld());
 
-			// Get player's existing region data
-			LinkedList<RegionItems> regions = new LinkedList<RegionItems>();
-			if (playerItemsPerRegion.containsKey(player.getName()))
+			if (playerLocation.containsKey(player.getName()))
 			{
-				regions = playerItemsPerRegion.get(player.getName());
+				lastLocation = playerLocation.get(player.getName());
 			}
-
-			if (manager != null)
+			if (lastLocation == null || lastLocation.distance(vec) >= 2)
 			{
-				// Look for new regions that the player is now in
-				ApplicableRegionSet set = manager.getApplicableRegions(vec);
-				Iterator<ProtectedRegion> proIt = set.iterator();
-				while (proIt.hasNext())
+				WorldGuardPlugin guard = PluginRegionBlacklist.instance().getWorldGuard();
+				if (guard != null)
 				{
-					ProtectedRegion region = proIt.next();
-					if (!regions.contains(region) && (region.getFlags().containsKey(PluginRegionBlacklist.DENY_ITEM_FLAG) || region.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG)))
-					{
-						regions.add(new RegionItems(player.getWorld(), region));
-					}
-				}
+					RegionManager manager = guard.getRegionManager(player.getWorld());
 
-				// check for regions the player has left so to return items
-				Iterator<RegionItems> regIt = regions.iterator();
-				while (regIt.hasNext())
-				{
-					RegionItems itemRegion = regIt.next();
-					Iterator<ProtectedRegion> oo = set.iterator();
-					boolean found = false;
-					while (oo.hasNext())
+					// Get player's existing region data
+					LinkedList<RegionItems> regions = new LinkedList<RegionItems>();
+					if (playerItemsPerRegion.containsKey(player.getName()))
 					{
-						ProtectedRegion region = oo.next();
-						// Compare region id
-						if (itemRegion.equals(region))
+						regions = playerItemsPerRegion.get(player.getName());
+					}
+
+					if (manager != null)
+					{
+						// Look for new regions that the player is now in
+						ApplicableRegionSet set = manager.getApplicableRegions(vec);
+						Iterator<ProtectedRegion> proIt = set.iterator();
+						while (proIt.hasNext())
 						{
-							// check to make sure the region still has either flag
-							if (region.getFlags().containsKey(PluginRegionBlacklist.DENY_ITEM_FLAG) || region.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG))
+							ProtectedRegion region = proIt.next();
+							if (!regions.contains(region) && (region.getFlags().containsKey(PluginRegionBlacklist.DENY_ITEM_FLAG) || region.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG)))
 							{
-								found = true;
+								regions.add(new RegionItems(player.getWorld(), region));
 							}
-							break;
+						}
+
+						// check for regions the player has left so to return items
+						Iterator<RegionItems> regIt = regions.iterator();
+						while (regIt.hasNext())
+						{
+							RegionItems itemRegion = regIt.next();
+							Iterator<ProtectedRegion> oo = set.iterator();
+							boolean found = false;
+							while (oo.hasNext())
+							{
+								ProtectedRegion region = oo.next();
+								// Compare region id
+								if (itemRegion.equals(region))
+								{
+									// check to make sure the region still has either flag
+									if (region.getFlags().containsKey(PluginRegionBlacklist.DENY_ITEM_FLAG) || region.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG))
+									{
+										found = true;
+									}
+									break;
+								}
+							}
+							if (found)
+							{
+								itemRegion.removeItems(player);
+							}
+							// If not found or empty clear region
+							if (!found)
+							{
+								itemRegion.returnItems(player);
+								if (itemRegion.isEmpty())
+									regIt.remove();
+							}
 						}
 					}
-					if(found)
+					else
 					{
-						itemRegion.removeItems(player);
+						clearPlayer(player);
 					}
-					// If not found or empty clear region
-					if (!found)
-					{
-						itemRegion.returnItems(player);
-						if (itemRegion.isEmpty())
-							regIt.remove();
-					}
+					if (regions != null && !regions.isEmpty())
+						this.playerItemsPerRegion.put(player.getName(), regions);
 				}
 			}
-			else
-			{
-				clearPlayer(player);
-			}
-			if (regions != null && !regions.isEmpty())
-				this.playerItemsPerRegion.put(player.getName(), regions);
+			this.playerLocation.put(player.getName(), new Vector(vec));
 		}
 	}
 
