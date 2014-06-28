@@ -42,7 +42,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 	/** Loads listener that deals with WorldGuard plugin support */
 	public void loadWorldGuardSupport()
 	{
-		if (listener != null)
+		if (listener == null)
 		{
 			Plugin wg = getServer().getPluginManager().getPlugin("WorldGuard");
 			Plugin wgFlag = getServer().getPluginManager().getPlugin("WGCustomFlags");
