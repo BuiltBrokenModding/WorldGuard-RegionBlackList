@@ -1,4 +1,4 @@
-package com.builtbroken.region.blacklist;
+package com.builtbroken.region.blacklist.worldguard;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -8,6 +8,7 @@ import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 
+import com.builtbroken.region.blacklist.ItemData;
 import com.mewin.WGCustomFlags.flags.CustomFlag;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.InvalidFlagFormat;

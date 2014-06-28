@@ -4,25 +4,26 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.builtbroken.region.blacklist.worldguard.WorldGuardSupport;
 import com.mewin.WGCustomFlags.WGCustomFlagsPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 /**
  * Bukkit plugin to work with worldguard to take as a user enters a region. Then give them back
  * after the user has left the region.
+ * 
  * @since 6/24/2014
- * @author Robert Seifert 
+ * @author Robert Seifert
  */
 public class PluginRegionBlacklist extends JavaPlugin
 {
-	public static final ItemFlag ALLOW_ITEM_FLAG = new ItemFlag("allow-items");
-	public static final ItemFlag DENY_ITEM_FLAG = new ItemFlag("deny-items");
 	private static PluginRegionBlacklist instance;
-	private EventListener listener;
+	private Listener listener;
 	private PluginLogger logger;
 
 	public static PluginRegionBlacklist instance()
@@ -35,10 +36,34 @@ public class PluginRegionBlacklist extends JavaPlugin
 	{
 		logger().info("Enabled!");
 		instance = this;
-		listener = new EventListener();
-		getServer().getPluginManager().registerEvents(this.listener, this);
-		this.getWGCustomFlags().addCustomFlag(ALLOW_ITEM_FLAG);
-		this.getWGCustomFlags().addCustomFlag(DENY_ITEM_FLAG);
+		loadWorldGuardSupport();
+	}
+	
+	/** Loads listener that deals with WorldGuard plugin support */
+	public void loadWorldGuardSupport()
+	{
+		if (listener != null)
+		{
+			Plugin wg = getServer().getPluginManager().getPlugin("WorldGuard");
+			Plugin wgFlag = getServer().getPluginManager().getPlugin("WGCustomFlags");
+			if (wg != null)
+			{
+				if (wgFlag != null)
+				{
+					logger().info("WorldGuard support loaded");
+					listener = new WorldGuardSupport();
+					getServer().getPluginManager().registerEvents(this.listener, this);
+				}
+				else
+				{
+					logger().info("Failed to find WGCutomFlags on plugin list");
+				}
+			}
+			else
+			{
+				logger().info("Failed to find WorldGuard on plugin list");
+			}
+		}
 	}
 
 	@Override
@@ -58,29 +83,4 @@ public class PluginRegionBlacklist extends JavaPlugin
 		return logger;
 	}
 
-	/** Gets the worldguard plugin currently loaded */
-	protected WorldGuardPlugin getWorldGuard()
-	{
-		Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
-
-		if (plugin == null || !(plugin instanceof WorldGuardPlugin))
-		{
-			return null;
-		}
-
-		return (WorldGuardPlugin) plugin;
-	}
-
-	/** Gets the custom flags plugin currently loaded */
-	protected WGCustomFlagsPlugin getWGCustomFlags()
-	{
-		Plugin plugin = getServer().getPluginManager().getPlugin("WGCustomFlags");
-
-		if (plugin == null || !(plugin instanceof WGCustomFlagsPlugin))
-		{
-			return null;
-		}
-
-		return (WGCustomFlagsPlugin) plugin;
-	}
 }

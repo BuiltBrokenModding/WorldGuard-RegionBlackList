@@ -1,4 +1,4 @@
-package com.builtbroken.region.blacklist;
+package com.builtbroken.region.blacklist.worldguard;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -6,10 +6,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.builtbroken.region.blacklist.ItemData;
+import com.builtbroken.region.blacklist.PluginRegionBlacklist;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -105,7 +108,7 @@ public class RegionItems
 		ProtectedRegion region = getRegion();
 		if (region != null)
 		{
-			if (region.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG))
+			if (region.getFlags().containsKey(WorldGuardSupport.ALLOW_ITEM_FLAG))
 			{
 				return false;
 			}
@@ -113,18 +116,19 @@ public class RegionItems
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<ItemData> getData()
 	{
 		ProtectedRegion region = getRegion();
 		if (region != null)
 		{
-			if (region.getFlags().containsKey(PluginRegionBlacklist.ALLOW_ITEM_FLAG))
+			if (region.getFlags().containsKey(WorldGuardSupport.ALLOW_ITEM_FLAG))
 			{
-				return (List<ItemData>) region.getFlags().get(PluginRegionBlacklist.ALLOW_ITEM_FLAG);
+				return (List<ItemData>) region.getFlags().get(WorldGuardSupport.ALLOW_ITEM_FLAG);
 			}
-			else if (region.getFlags().containsKey(PluginRegionBlacklist.DENY_ITEM_FLAG))
+			else if (region.getFlags().containsKey(WorldGuardSupport.DENY_ITEM_FLAG))
 			{
-				return (List<ItemData>) region.getFlags().get(PluginRegionBlacklist.DENY_ITEM_FLAG);
+				return (List<ItemData>) region.getFlags().get(WorldGuardSupport.DENY_ITEM_FLAG);
 			}
 		}
 		return null;
@@ -132,7 +136,7 @@ public class RegionItems
 
 	public ProtectedRegion getRegion()
 	{
-		WorldGuardPlugin guard = PluginRegionBlacklist.instance().getWorldGuard();
+		WorldGuardPlugin guard = WGUtility.getWorldGuard();
 		if (guard != null)
 		{
 			RegionManager manager = guard.getRegionManager(world);
@@ -146,7 +150,7 @@ public class RegionItems
 
 	public Player getPlayer(String user)
 	{
-		return PluginRegionBlacklist.instance().getServer().getPlayer(user);
+		return Bukkit.getPlayer(user);
 	}
 
 	public boolean isEmpty()
