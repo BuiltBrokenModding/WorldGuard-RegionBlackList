@@ -4,10 +4,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 
-import com.builtbroken.region.blacklist.PluginRegionBlacklist;
 import com.mewin.WGCustomFlags.WGCustomFlagsPlugin;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
@@ -32,7 +32,7 @@ public class WGUtility
 	{
 		if (worldGuard == null)
 		{
-			Plugin plugin = PluginRegionBlacklist.instance().getServer().getPluginManager().getPlugin("WorldGuard");
+			Plugin plugin = Bukkit.getPluginManager().getPlugin("WorldGuard");
 
 			if (plugin instanceof WorldGuardPlugin)
 			{
@@ -47,7 +47,7 @@ public class WGUtility
 	{
 		if (wgFlags == null)
 		{
-			Plugin plugin = PluginRegionBlacklist.instance().getServer().getPluginManager().getPlugin("WGCustomFlags");
+			Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("WGCustomFlags");
 
 			if (plugin instanceof WGCustomFlagsPlugin)
 			{

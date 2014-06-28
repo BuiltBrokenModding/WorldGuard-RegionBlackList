@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
+import com.builtbroken.region.blacklist.PluginRegionBlacklist;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -27,6 +28,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
  */
 public class WorldGuardSupport implements Listener
 {
+	
 	private static int CHANGE_IN_DISTANCE = 5;
 	private static int SECONDS_BETWEEN_UPDATES = 10;
 	private static long MILLS_BETWEEN_UPDATES = SECONDS_BETWEEN_UPDATES * 1000;
@@ -34,13 +36,15 @@ public class WorldGuardSupport implements Listener
 	public static final ItemFlag ALLOW_ITEM_FLAG = new ItemFlag("allow-items");
 	public static final ItemFlag DENY_ITEM_FLAG = new ItemFlag("deny-items");
 
+	private PluginRegionBlacklist plugin = null;
 	private HashMap<String, RegionList> playerItemsPerRegion = new LinkedHashMap<String, RegionList>();
 	private HashMap<String, Vector> playerLocation = new LinkedHashMap<String, Vector>();
 	private HashMap<String, Long> playerTime = new LinkedHashMap<String, Long>();
 	private HashMap<String, Boolean> playerOptOutMessages = new LinkedHashMap<String, Boolean>();
 
-	public WorldGuardSupport()
+	public WorldGuardSupport(PluginRegionBlacklist plugin)
 	{
+		this.plugin = plugin;
 		WGUtility.customFlags().addCustomFlag(ALLOW_ITEM_FLAG);
 		WGUtility.customFlags().addCustomFlag(DENY_ITEM_FLAG);
 	}

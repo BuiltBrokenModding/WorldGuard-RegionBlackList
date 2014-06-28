@@ -16,7 +16,6 @@ import com.builtbroken.region.blacklist.worldguard.WorldGuardSupport;
  */
 public class PluginRegionBlacklist extends JavaPlugin
 {
-	private static PluginRegionBlacklist instance;
 	private Listener worldGuardListener;
 	private Listener factionsListener;
 	private PluginLogger logger;
@@ -28,23 +27,16 @@ public class PluginRegionBlacklist extends JavaPlugin
 	 * Add: Settings config
 	 * Add: Chat command to change settings
 	 * Add: Chat command to op out of messages
-	 * Add: Remove and return item messages
 	 * Add: Item save/load to prevent item loss
 	 * Add: Events for later use and common support
 	 * Merged: Some faction and worldguard common support
 	 * Add: Chest GUI to show items that were removed from the player
 	 */
-	
-	public static PluginRegionBlacklist instance()
-	{
-		return instance;
-	}
 
 	@Override
 	public void onEnable()
 	{
 		logger().info("Enabled!");
-		instance = this;
 		loadWorldGuardSupport();
 		loadFactionSupport();
 	}
@@ -58,7 +50,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 			if (factions != null)
 			{
 				logger().info("Factions support loaded");
-				factionsListener = new WorldGuardSupport();
+				factionsListener = new WorldGuardSupport(this);
 				getServer().getPluginManager().registerEvents(this.factionsListener, this);
 			}
 			else
@@ -80,7 +72,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 				if (wgFlag != null)
 				{
 					logger().info("WorldGuard support loaded");
-					worldGuardListener = new WorldGuardSupport();
+					worldGuardListener = new WorldGuardSupport(this);
 					getServer().getPluginManager().registerEvents(this.worldGuardListener, this);
 				}
 				else

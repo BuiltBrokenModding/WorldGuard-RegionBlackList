@@ -1,5 +1,6 @@
 package com.builtbroken.region.blacklist.factions;
 
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 import com.builtbroken.region.blacklist.PluginRegionBlacklist;
@@ -20,7 +21,7 @@ public class FactionUtility
 	{
 		if (factions == null)
 		{
-			Plugin plugin = PluginRegionBlacklist.instance().getServer().getPluginManager().getPlugin("Factions");
+			Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("Factions");
 
 			if (plugin instanceof Factions)
 			{
