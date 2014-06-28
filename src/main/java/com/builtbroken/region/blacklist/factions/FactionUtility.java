@@ -5,6 +5,12 @@ import org.bukkit.plugin.Plugin;
 import com.builtbroken.region.blacklist.PluginRegionBlacklist;
 import com.massivecraft.factions.Factions;
 
+/**
+ * Handles common factions related methods
+ * 
+ * @author Robert Seifert
+ * 
+ */
 public class FactionUtility
 {
 	private static Factions factions = null;

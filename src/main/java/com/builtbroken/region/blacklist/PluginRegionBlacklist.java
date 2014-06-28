@@ -21,6 +21,20 @@ public class PluginRegionBlacklist extends JavaPlugin
 	private Listener factionsListener;
 	private PluginLogger logger;
 
+	/* TODO - list of stuff to still do
+	 * Add: Factions support
+	 * Add: Chat lang config
+	 * Add: Global item ban list
+	 * Add: Settings config
+	 * Add: Chat command to change settings
+	 * Add: Chat command to op out of messages
+	 * Add: Remove and return item messages
+	 * Add: Item save/load to prevent item loss
+	 * Add: Events for later use and common support
+	 * Merged: Some faction and worldguard common support
+	 * Add: Chest GUI to show items that were removed from the player
+	 */
+	
 	public static PluginRegionBlacklist instance()
 	{
 		return instance;
