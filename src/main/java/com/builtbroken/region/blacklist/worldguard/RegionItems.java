@@ -42,20 +42,21 @@ public class RegionItems
 	}
 
 	/** Removes all banned items from the player */
-	public void removeItems(String user)
+	public boolean removeItems(String user)
 	{
-		removeItems(getPlayer(user));
+		return removeItems(getPlayer(user));
 	}
 
 	/** Returns all banned items from the player */
-	public void returnItems(String user)
+	public boolean returnItems(String user)
 	{
-		returnItems(getPlayer(user));
+		return returnItems(getPlayer(user));
 	}
 
 	/** Removes all banned items from the player */
-	public void removeItems(Player player)
+	public boolean removeItems(Player player)
 	{
+		boolean taken_flag = false;
 		if (player != null)
 		{
 			boolean denyList = denyList();
@@ -75,22 +76,26 @@ public class RegionItems
 							{
 								this.heldItems.add(stack);
 								player.getInventory().setItem(slot, null);
+								taken_flag = true;
 							}
 						}
 						else if (!denyList)
 						{
 							this.heldItems.add(stack);
 							player.getInventory().setItem(slot, null);
+							taken_flag = true;
 						}
 					}
 				}
 			}
 		}
+		return taken_flag;
 	}
 
 	/** Returns all banned items from the player */
-	public void returnItems(Player player)
+	public boolean returnItems(Player player)
 	{
+		boolean return_flag = false;
 		if (player != null && !this.isEmpty())
 		{
 			Iterator<ItemStack> it = heldItems.iterator();
@@ -99,8 +104,10 @@ public class RegionItems
 				ItemStack stack = it.next();
 				player.getInventory().addItem(stack);
 				it.remove();
+				return_flag = true;
 			}
 		}
+		return return_flag;
 	}
 
 	public boolean denyList()
