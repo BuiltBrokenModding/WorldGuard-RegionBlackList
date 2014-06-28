@@ -37,6 +37,7 @@ public class WorldGuardSupport implements Listener
 	private HashMap<String, RegionList> playerItemsPerRegion = new LinkedHashMap<String, RegionList>();
 	private HashMap<String, Vector> playerLocation = new LinkedHashMap<String, Vector>();
 	private HashMap<String, Long> playerTime = new LinkedHashMap<String, Long>();
+	private HashMap<String, Boolean> playerOptOutMessages = new LinkedHashMap<String, Boolean>();
 
 	public WorldGuardSupport()
 	{
@@ -72,6 +73,8 @@ public class WorldGuardSupport implements Listener
 				regions = new RegionList(player);
 
 			List<String> regionNames = regions.asNames();
+			boolean itemsRemoved = false;
+			boolean itemsReturned = false;
 
 			// Go threw all regions the player is in looking for new ones and checking current
 			for (ProtectedRegion region : regionList)
@@ -83,7 +86,7 @@ public class WorldGuardSupport implements Listener
 				else
 				{
 					RegionItems item = new RegionItems(player.getWorld(), region);
-					item.removeItems(player);
+					itemsRemoved = item.removeItems(player);
 					regions.add(item);
 				}
 			}
@@ -94,7 +97,7 @@ public class WorldGuardSupport implements Listener
 				RegionItems item = regions.getRegion(regionName);
 				if (item != null)
 				{
-					item.returnItems(player);
+					itemsReturned = item.returnItems(player);
 					if (item.isEmpty())
 						regions.remove(item);
 				}
@@ -102,6 +105,18 @@ public class WorldGuardSupport implements Listener
 
 			if (regions != null && !regions.isEmpty())
 				this.playerItemsPerRegion.put(player.getName(), regions);
+
+			if (!playerOptOutMessages.containsKey(player.getName()) || !playerOptOutMessages.get(player.getName()))
+			{
+				if (itemsReturned)
+				{
+					player.sendMessage("Items were returned to your inventory!");
+				}
+				if (itemsRemoved)
+				{
+					player.sendMessage("Items were removed from your inventory! They will be returned when you leave this region.");
+				}
+			}
 		}
 		else
 		{
@@ -186,10 +201,10 @@ public class WorldGuardSupport implements Listener
 		update(event.getPlayer());
 	}
 
-	//@EventHandler
+	// @EventHandler
 	public void onPickUpItem(PlayerPickupItemEvent event)
 	{
-		//TODO if item is banned send strait to item cache
+		// TODO if item is banned send strait to item cache
 	}
 
 }
