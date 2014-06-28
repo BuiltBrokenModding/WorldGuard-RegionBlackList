@@ -40,7 +40,6 @@ public class WorldGuardSupport implements Listener
 	private HashMap<String, RegionList> playerItemsPerRegion = new LinkedHashMap<String, RegionList>();
 	private HashMap<String, Vector> playerLocation = new LinkedHashMap<String, Vector>();
 	private HashMap<String, Long> playerTime = new LinkedHashMap<String, Long>();
-	private HashMap<String, Boolean> playerOptOutMessages = new LinkedHashMap<String, Boolean>();
 
 	public WorldGuardSupport(PluginRegionBlacklist plugin)
 	{
@@ -110,7 +109,7 @@ public class WorldGuardSupport implements Listener
 			if (regions != null && !regions.isEmpty())
 				this.playerItemsPerRegion.put(player.getName(), regions);
 
-			if (!playerOptOutMessages.containsKey(player.getName()) || !playerOptOutMessages.get(player.getName()))
+			if (!plugin.playerOptOutMessages.containsKey(player.getName()) || !plugin.playerOptOutMessages.get(player.getName()))
 			{
 				if (itemsReturned)
 				{
