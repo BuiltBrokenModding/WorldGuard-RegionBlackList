@@ -28,7 +28,7 @@ public class WGUtility
 	private static WGCustomFlagsPlugin wgFlags = null;
 
 	/** Gets the worldguard plugin currently loaded */
-	protected static WorldGuardPlugin getWorldGuard()
+	protected static WorldGuardPlugin worldGuard()
 	{
 		if (worldGuard == null)
 		{
@@ -43,7 +43,7 @@ public class WGUtility
 	}
 
 	/** Gets the custom flags plugin currently loaded */
-	protected static WGCustomFlagsPlugin getWGCustomFlags()
+	protected static WGCustomFlagsPlugin customFlags()
 	{
 		if (wgFlags == null)
 		{
@@ -59,7 +59,7 @@ public class WGUtility
 
 	public static ApplicableRegionSet getRegions(World world, Vector vec)
 	{
-		WorldGuardPlugin guard = WGUtility.getWorldGuard();
+		WorldGuardPlugin guard = WGUtility.worldGuard();
 		if (guard != null)
 		{
 			RegionManager manager = guard.getRegionManager(world);

@@ -40,8 +40,8 @@ public class WorldGuardSupport implements Listener
 
 	public WorldGuardSupport()
 	{
-		WGUtility.getWGCustomFlags().addCustomFlag(ALLOW_ITEM_FLAG);
-		WGUtility.getWGCustomFlags().addCustomFlag(DENY_ITEM_FLAG);
+		WGUtility.customFlags().addCustomFlag(ALLOW_ITEM_FLAG);
+		WGUtility.customFlags().addCustomFlag(DENY_ITEM_FLAG);
 	}
 
 	/** Updated item data for player */

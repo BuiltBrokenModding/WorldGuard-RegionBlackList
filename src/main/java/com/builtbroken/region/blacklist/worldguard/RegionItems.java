@@ -136,7 +136,7 @@ public class RegionItems
 
 	public ProtectedRegion getRegion()
 	{
-		WorldGuardPlugin guard = WGUtility.getWorldGuard();
+		WorldGuardPlugin guard = WGUtility.worldGuard();
 		if (guard != null)
 		{
 			RegionManager manager = guard.getRegionManager(world);
