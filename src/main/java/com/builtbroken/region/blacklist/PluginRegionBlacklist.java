@@ -1,17 +1,11 @@
 package com.builtbroken.region.blacklist;
 
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.builtbroken.region.blacklist.worldguard.WorldGuardSupport;
-import com.mewin.WGCustomFlags.WGCustomFlagsPlugin;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 /**
  * Bukkit plugin to work with worldguard to take as a user enters a region. Then give them back
@@ -23,7 +17,8 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 public class PluginRegionBlacklist extends JavaPlugin
 {
 	private static PluginRegionBlacklist instance;
-	private Listener listener;
+	private Listener worldGuardListener;
+	private Listener factionsListener;
 	private PluginLogger logger;
 
 	public static PluginRegionBlacklist instance()
@@ -37,12 +32,32 @@ public class PluginRegionBlacklist extends JavaPlugin
 		logger().info("Enabled!");
 		instance = this;
 		loadWorldGuardSupport();
+		loadFactionSupport();
 	}
-	
+
+	/** Loads listener that deals with Factions plugin support */
+	public void loadFactionSupport()
+	{
+		if (factionsListener == null)
+		{
+			Plugin factions = getServer().getPluginManager().getPlugin("Factions");
+			if (factions != null)
+			{
+				logger().info("Factions support loaded");
+				factionsListener = new WorldGuardSupport();
+				getServer().getPluginManager().registerEvents(this.factionsListener, this);
+			}
+			else
+			{
+				logger().info("Failed to find factions on plugin list");
+			}
+		}
+	}
+
 	/** Loads listener that deals with WorldGuard plugin support */
 	public void loadWorldGuardSupport()
 	{
-		if (listener == null)
+		if (worldGuardListener == null)
 		{
 			Plugin wg = getServer().getPluginManager().getPlugin("WorldGuard");
 			Plugin wgFlag = getServer().getPluginManager().getPlugin("WGCustomFlags");
@@ -51,8 +66,8 @@ public class PluginRegionBlacklist extends JavaPlugin
 				if (wgFlag != null)
 				{
 					logger().info("WorldGuard support loaded");
-					listener = new WorldGuardSupport();
-					getServer().getPluginManager().registerEvents(this.listener, this);
+					worldGuardListener = new WorldGuardSupport();
+					getServer().getPluginManager().registerEvents(this.worldGuardListener, this);
 				}
 				else
 				{
