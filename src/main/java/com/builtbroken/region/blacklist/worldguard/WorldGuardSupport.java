@@ -1,28 +1,22 @@
 package com.builtbroken.region.blacklist.worldguard;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
-import com.builtbroken.region.blacklist.PluginRegionBlacklist;
-import com.mewin.WGCustomFlags.WGCustomFlagsPlugin;
 import com.sk89q.worldedit.Vector;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 /**
@@ -50,18 +44,6 @@ public class WorldGuardSupport implements Listener
 		WGUtility.getWGCustomFlags().addCustomFlag(DENY_ITEM_FLAG);
 	}
 
-	@EventHandler
-	public void onPlayerMove(PlayerMoveEvent event)
-	{
-		update(event.getPlayer());
-	}
-
-	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent event)
-	{
-		update(event.getPlayer());
-	}
-
 	/** Updated item data for player */
 	public void update(Player player)
 	{
@@ -78,7 +60,7 @@ public class WorldGuardSupport implements Listener
 				updatePlayerRegions(player, getRegionItems(player), WGUtility.getRegionsWithFlags(player.getWorld(), vec, DENY_ITEM_FLAG, ALLOW_ITEM_FLAG));
 				this.playerLocation.put(player.getName(), new Vector(vec));
 				this.playerTime.put(player.getName(), System.currentTimeMillis());
-			}			
+			}
 		}
 	}
 
@@ -152,10 +134,21 @@ public class WorldGuardSupport implements Listener
 		return null;
 	}
 
+	/********************************
+	 * Events that dump the player's data
+	 ********************************/
+
 	@EventHandler
-	public void onPlayerQuit(PlayerQuitEvent evt)
+	public void onDeath(EntityDeathEvent event)
 	{
-		clearPlayer(evt.getPlayer());
+		if (event.getEntity() instanceof Player)
+			clearPlayer((Player) event.getEntity());
+	}
+
+	@EventHandler
+	public void onPlayerQuit(PlayerQuitEvent event)
+	{
+		clearPlayer(event.getPlayer());
 	}
 
 	@EventHandler
@@ -169,6 +162,34 @@ public class WorldGuardSupport implements Listener
 		RegionList list = this.getRegionItems(player);
 		if (list != null)
 			list.clearPlayer();
+	}
+
+	/********************************
+	 * Events that trigger updates
+	 ********************************/
+
+	@EventHandler
+	public void onRespawn(PlayerRespawnEvent event)
+	{
+		update(event.getPlayer());
+	}
+
+	@EventHandler
+	public void onPlayerMove(PlayerMoveEvent event)
+	{
+		update(event.getPlayer());
+	}
+
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent event)
+	{
+		update(event.getPlayer());
+	}
+
+	//@EventHandler
+	public void onPickUpItem(PlayerPickupItemEvent event)
+	{
+		//TODO if item is banned send strait to item cache
 	}
 
 }
