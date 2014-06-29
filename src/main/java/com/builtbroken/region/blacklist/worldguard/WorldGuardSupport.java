@@ -38,8 +38,8 @@ public class WorldGuardSupport implements Listener
 
 	private PluginRegionBlacklist plugin = null;
 	private HashMap<String, RegionList> playerItemsPerRegion = new LinkedHashMap<String, RegionList>();
-	private HashMap<String, Vector> playerLocation = new LinkedHashMap<String, Vector>();
-	private HashMap<String, Long> playerTime = new LinkedHashMap<String, Long>();
+	private HashMap<String, Vector> lastPlayerUpdateLocation = new LinkedHashMap<String, Vector>();
+	private HashMap<String, Long> lastPlayerUpateTime = new LinkedHashMap<String, Long>();
 
 	public WorldGuardSupport(PluginRegionBlacklist plugin)
 	{
@@ -57,13 +57,13 @@ public class WorldGuardSupport implements Listener
 			Location loc = player.getLocation();
 			Vector vec = new Vector(loc.getX(), loc.getY(), loc.getZ());
 			boolean distance_flag = lastLocation == null || lastLocation.distance(vec) >= CHANGE_IN_DISTANCE;
-			boolean time_flag = !playerTime.containsKey(player.getName()) || System.currentTimeMillis() - playerTime.get(player.getName()) >= MILLS_BETWEEN_UPDATES;
+			boolean time_flag = !lastPlayerUpateTime.containsKey(player.getName()) || System.currentTimeMillis() - lastPlayerUpateTime.get(player.getName()) >= MILLS_BETWEEN_UPDATES;
 
 			if (distance_flag || time_flag)
 			{
 				updatePlayerRegions(player, getRegionItems(player), WGUtility.getRegionsWithFlags(player.getWorld(), vec, DENY_ITEM_FLAG, ALLOW_ITEM_FLAG));
-				this.playerLocation.put(player.getName(), new Vector(vec));
-				this.playerTime.put(player.getName(), System.currentTimeMillis());
+				this.lastPlayerUpdateLocation.put(player.getName(), new Vector(vec));
+				this.lastPlayerUpateTime.put(player.getName(), System.currentTimeMillis());
 			}
 		}
 	}
@@ -145,9 +145,9 @@ public class WorldGuardSupport implements Listener
 	/** Player's last location when we ran an update */
 	public Vector getLastLocation(Player player)
 	{
-		if (playerLocation.containsKey(player.getName()))
+		if (lastPlayerUpdateLocation.containsKey(player.getName()))
 		{
-			return playerLocation.get(player.getName());
+			return lastPlayerUpdateLocation.get(player.getName());
 		}
 		return null;
 	}

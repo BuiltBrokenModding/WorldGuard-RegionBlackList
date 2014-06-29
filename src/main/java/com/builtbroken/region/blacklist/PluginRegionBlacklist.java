@@ -2,6 +2,8 @@ package com.builtbroken.region.blacklist;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -12,6 +14,7 @@ import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.builtbroken.region.blacklist.worldguard.WorldGuardSupport;
+import com.massivecraft.mcore.util.Txt;
 
 /**
  * Bukkit plugin to work with worldguard to take as a user enters a region. Then give them back
@@ -24,7 +27,8 @@ public class PluginRegionBlacklist extends JavaPlugin
 {
 	private Listener worldGuardListener;
 	private Listener factionsListener;
-	private PluginLogger logger;
+	private Logger logger;
+	private String loggerPrefix = "";
 	public HashMap<String, Boolean> playerOptOutMessages = new LinkedHashMap<String, Boolean>();
 
 	/*
@@ -38,9 +42,11 @@ public class PluginRegionBlacklist extends JavaPlugin
 	@Override
 	public void onEnable()
 	{
+		loggerPrefix = String.format("[InvReg %s]", this.getDescription().getVersion());
 		logger().info("Enabled!");
 		loadWorldGuardSupport();
 		loadFactionSupport();
+		getCommand("RegInv").setExecutor(this);
 	}
 
 	/** Loads listener that deals with Factions plugin support */
@@ -96,11 +102,19 @@ public class PluginRegionBlacklist extends JavaPlugin
 	}
 
 	/** Logger used by the plugin, mainly just prefixes everything with the name */
-	public PluginLogger logger()
+	public Logger logger()
 	{
 		if (logger == null)
 		{
-			logger = new PluginLogger(this);
+			logger = new Logger(PluginRegionBlacklist.this.getClass().getCanonicalName(), null)
+			{
+				public void log(LogRecord logRecord)
+				{				
+					
+					logRecord.setMessage(loggerPrefix + logRecord.getMessage());
+					super.log(logRecord);
+				}
+			};
 			logger.setParent(getLogger());
 		}
 		return logger;
