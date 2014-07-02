@@ -120,13 +120,14 @@ public abstract class PlayerAreaItems
 		{
 			boolean denyList = denyArmor();
 			List<ItemData> list = getArmorData();
-			if (list != null && !list.isEmpty())
+			ItemStack[] armorContent = player.getInventory().getArmorContents();
+			if (list != null && !list.isEmpty() && armorContent != null)
 			{
 				for (ItemData data : list)
 				{
-					for (int slot = 0; slot < player.getInventory().getArmorContents().length; slot++)
+					for (int slot = 0; slot < armorContent.length; slot++)
 					{
-						ItemStack stack = player.getInventory().getArmorContents()[slot];
+						ItemStack stack = armorContent[slot];
 						if (stack != null)
 						{
 							boolean match = stack.getTypeId() == data.stack().getTypeId() && (data.allMeta() || stack.getItemMeta() == data.stack().getItemMeta());
@@ -136,20 +137,21 @@ public abstract class PlayerAreaItems
 								if (denyList)
 								{
 									this.armor.put(slot, stack);
-									player.getInventory().getArmorContents()[slot] = null;
+									armorContent[slot] = null;
 									taken_flag = true;
 								}
 							}
 							else if (!denyList)
 							{
 								this.armor.put(slot, stack);
-								player.getInventory().getArmorContents()[slot] = null;
+								armorContent[slot] = null;
 								taken_flag = true;
 							}
 						}
 					}
 				}
 			}
+			player.getInventory().setArmorContents(armorContent);
 		}
 
 		return taken_flag;
@@ -183,15 +185,17 @@ public abstract class PlayerAreaItems
 			// Return armor items
 			updateMap = new HashMap<Integer, ItemStack>();
 			it = armor.entrySet().iterator();
+			ItemStack[] armorContent = player.getInventory().getArmorContents();
 			while (it.hasNext())
 			{
 				boolean remove = false;
 				Entry<Integer, ItemStack> entry = it.next();
 				if (entry.getValue() != null)
 				{
-					if (player.getInventory().getArmorContents()[entry.getKey()] == null)
+					if (armorContent[entry.getKey()] == null)
 					{
-						player.getInventory().getArmorContents()[entry.getKey()] = entry.getValue();
+						armorContent[entry.getKey()] = entry.getValue();
+						return_flag = true;
 					}
 					else
 					{
@@ -204,6 +208,7 @@ public abstract class PlayerAreaItems
 				}
 				it.remove();
 			}
+			player.getInventory().setArmorContents(armorContent);
 			if (!updateMap.isEmpty())
 				armor.putAll(updateMap);
 		}
@@ -240,12 +245,11 @@ public abstract class PlayerAreaItems
 			else
 			{
 				HashMap<Integer, ItemStack> re = player.getInventory().addItem(stack);
-				System.out.println("Returning Item Output: " + re);
-				if(re != null && !re.isEmpty())
+				if (re != null && !re.isEmpty())
 				{
-					for(Entry<Integer, ItemStack> entry : re.entrySet())
+					for (Entry<Integer, ItemStack> entry : re.entrySet())
 					{
-						if(entry.getValue() != null)
+						if (entry.getValue() != null)
 							return entry.getValue();
 					}
 				}
