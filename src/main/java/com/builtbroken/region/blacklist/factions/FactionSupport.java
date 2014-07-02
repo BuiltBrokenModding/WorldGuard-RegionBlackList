@@ -2,6 +2,7 @@ package com.builtbroken.region.blacklist.factions;
 
 import org.bukkit.event.Listener;
 
+import com.builtbroken.region.blacklist.IBlackListRegion;
 import com.builtbroken.region.blacklist.PluginRegionBlacklist;
 
 /**
@@ -10,7 +11,7 @@ import com.builtbroken.region.blacklist.PluginRegionBlacklist;
  * @author Robert Seifert
  * 
  */
-public class FactionSupport implements Listener
+public class FactionSupport implements IBlackListRegion
 {
 	private PluginRegionBlacklist plugin = null;
 

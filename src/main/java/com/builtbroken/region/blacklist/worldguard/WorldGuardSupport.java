@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
+import com.builtbroken.region.blacklist.IBlackListRegion;
 import com.builtbroken.region.blacklist.PluginRegionBlacklist;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -26,7 +27,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
  * @author Robert Seifert
  * 
  */
-public class WorldGuardSupport implements Listener
+public class WorldGuardSupport implements IBlackListRegion
 {
 	
 	private static int CHANGE_IN_DISTANCE = 5;
