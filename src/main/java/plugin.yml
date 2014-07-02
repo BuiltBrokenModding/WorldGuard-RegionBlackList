@@ -3,3 +3,7 @@ version: "0.0.6"
 main: com.builtbroken.region.blacklist.PluginRegionBlacklist
 softdepend: [ WorldEdit, Factions , WorldGuard , WGCustomFlags ]
 authors: [ DarkGuardsman ]
+commands:
+    RegInv:
+        description: Description
+        usage: /RegInv <command> [Optional, arguments]
