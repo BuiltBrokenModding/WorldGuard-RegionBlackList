@@ -192,7 +192,8 @@ public abstract class PlayerAreaItems
 				Entry<Integer, ItemStack> entry = it.next();
 				if (entry.getValue() != null)
 				{
-					if (armorContent[entry.getKey()] == null)
+					System.out.println("ArmorSlot: "+entry.getKey() + "  Item: " + armorContent[entry.getKey()]);
+					if (armorContent[entry.getKey()] == null || armorContent[entry.getKey()].getTypeId() == 0)
 					{
 						armorContent[entry.getKey()] = entry.getValue();
 						return_flag = true;
