@@ -235,11 +235,21 @@ public abstract class PlayerAreaItems
 			if (slot >= 0 && player.getInventory().getItem(slot) == null)
 			{
 				player.getInventory().setItem(slot, stack);
+				return null;
 			}
 			else
 			{
 				HashMap<Integer, ItemStack> re = player.getInventory().addItem(stack);
 				System.out.println("Returning Item Output: " + re);
+				if(re != null && !re.isEmpty())
+				{
+					for(Entry<Integer, ItemStack> entry : re.entrySet())
+					{
+						if(entry.getValue() != null)
+							return entry.getValue();
+					}
+				}
+				return null;
 			}
 		}
 		return stack;
@@ -253,5 +263,11 @@ public abstract class PlayerAreaItems
 			return ((String) object).equalsIgnoreCase(this.areaName);
 		}
 		return super.equals(object);
+	}
+
+	/** Name of the area */
+	public String getAreaName()
+	{
+		return this.areaName;
 	}
 }

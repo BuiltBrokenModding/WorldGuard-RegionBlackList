@@ -36,7 +36,7 @@ public class RegionList extends LinkedList<RegionItems>
 		while (it.hasNext())
 		{
 			RegionItems item = it.next();
-			if (item.regionName.equalsIgnoreCase(name))
+			if (item.getAreaName().equalsIgnoreCase(name))
 			{
 				return item;
 			}
@@ -53,7 +53,7 @@ public class RegionList extends LinkedList<RegionItems>
 		while (it.hasNext())
 		{
 			RegionItems item = it.next();
-			regionNames.add(item.regionName);
+			regionNames.add(item.getAreaName());
 		}
 
 		return regionNames;
