@@ -36,6 +36,8 @@ public class WorldGuardSupport implements IBlackListRegion
 
 	public static final ItemFlag ALLOW_ITEM_FLAG = new ItemFlag("allow-items");
 	public static final ItemFlag DENY_ITEM_FLAG = new ItemFlag("deny-items");
+	public static final ItemFlag ALLOW_ARMOR_FLAG = new ItemFlag("allow-armor");
+	public static final ItemFlag DENY_ARMOR_FLAG = new ItemFlag("deny-armor");
 
 	private PluginRegionBlacklist plugin = null;
 	private HashMap<String, RegionList> playerItemsPerRegion = new LinkedHashMap<String, RegionList>();
@@ -47,6 +49,8 @@ public class WorldGuardSupport implements IBlackListRegion
 		this.plugin = plugin;
 		WGUtility.customFlags().addCustomFlag(ALLOW_ITEM_FLAG);
 		WGUtility.customFlags().addCustomFlag(DENY_ITEM_FLAG);
+		WGUtility.customFlags().addCustomFlag(ALLOW_ARMOR_FLAG);
+		WGUtility.customFlags().addCustomFlag(DENY_ARMOR_FLAG);
 	}
 
 	/** Updated item data for player */
