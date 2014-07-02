@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<!-- Configuration of the Ant build system to generate a Jar file --> 
+<project name="InventoryRegion" default="CreateJar">
+  <target name="CreateJar" description="Create Jar file">
+        <jar jarfile="InventoryRegion.jar" basedir="." excludes="*.xml,*.jardesc,*.jar" />
+  		<copy file="InventoryRegion.jar" tofile="../../dest/plugins/InventoryRegion.jar"/>
+  </target>
+</project>
