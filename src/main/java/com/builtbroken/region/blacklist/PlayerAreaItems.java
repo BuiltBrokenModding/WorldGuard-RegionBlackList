@@ -63,97 +63,147 @@ public abstract class PlayerAreaItems
 	{
 		boolean taken_flag = false;
 
-		if (takeInventory(player))
-			taken_flag = true;
-
-		if (takeArmor(player))
-			taken_flag = true;
-
-		return taken_flag;
-	}
-
-	protected boolean takeInventory(Player player)
-	{
-		boolean taken_flag = false;
+		// Take items from player's inventory
 		if (!player.hasPermission("reginv.inventory.keep"))
 		{
-			boolean denyList = denyInventory();
-			List<ItemData> list = getInventoryData();
-			if (list != null && !list.isEmpty())
-			{
-				for (ItemData data : list)
-				{
-					for (int slot = 0; slot < player.getInventory().getContents().length; slot++)
-					{
-						ItemStack stack = player.getInventory().getContents()[slot];
-						if (stack != null)
-						{
-							boolean match = stack.getTypeId() == data.stack().getTypeId() && (data.allMeta() || stack.getItemMeta() == data.stack().getItemMeta());
+			if (removeItems(player, getInventoryData(), denyInventory(), true))
+				taken_flag = true;
+		}
+		// Take items from player's armor slots
+		if (!player.hasPermission("reginv.armor.keep"))
+		{
+			if (removeArmor(player, getArmorData(), denyArmor()))
+				taken_flag = true;
+		}
 
-							if (match)
-							{
-								if (denyList)
-								{
-									this.inventory.put(slot, stack);
-									player.getInventory().setItem(slot, null);
-									taken_flag = true;
-								}
-							}
-							else if (!denyList)
-							{
-								this.inventory.put(slot, stack);
-								player.getInventory().setItem(slot, null);
-								taken_flag = true;
-							}
-						}
+		return taken_flag;
+	}
+
+	/**
+	 * Takes all items from a players inventory based on the data points given
+	 * 
+	 * @param player - player who contains the inventory to search
+	 * @param data - List of ItemData used to compare if an ItemStack matches
+	 * @param denyList - deny items, true will use data as a banlist, false will use data as an
+	 * allow only list
+	 * @return true if any items were removed
+	 */
+	public boolean removeItems(Player player, List<ItemData> list, boolean denyList, boolean logSlot)
+	{
+		boolean taken_flag = false;
+		if (list != null && !list.isEmpty())
+		{
+			for (ItemData data : list)
+			{
+				if (removeItems(player, data, denyList, logSlot))
+					taken_flag = true;
+			}
+		}
+		return taken_flag;
+	}
+
+	/**
+	 * Takes all items from a players inventory based on the data point
+	 * 
+	 * @param player - player who contains the inventory to search
+	 * @param data - ItemData used to compare if an ItemStack matches
+	 * @param denyList - deny items, true will use data as a banlist, false will use data as an
+	 * allow only list
+	 * @return true if any items were removed
+	 */
+	public boolean removeItems(Player player, ItemData data, boolean denyList, boolean logSlot)
+	{
+		boolean taken_flag = false;
+		for (int slot = 0; slot < player.getInventory().getContents().length; slot++)
+		{
+			ItemStack stack = player.getInventory().getContents()[slot];
+			if (stack != null)
+			{
+				boolean match = stack.getTypeId() == data.stack().getTypeId() && (data.allMeta() || stack.getItemMeta() == data.stack().getItemMeta());
+
+				if (match)
+				{
+					if (denyList)
+					{
+						this.inventory.put(logSlot ? slot : -1, stack);
+						player.getInventory().setItem(slot, null);
+						taken_flag = true;
 					}
+				}
+				else if (!denyList)
+				{
+					this.inventory.put(logSlot ? slot : -1, stack);
+					player.getInventory().setItem(slot, null);
+					taken_flag = true;
 				}
 			}
 		}
 		return taken_flag;
 	}
 
-	protected boolean takeArmor(Player player)
+	/**
+	 * Removes armor from the player using a list of data points
+	 * 
+	 * @param player - player
+	 * @param data - List of ItemData used to compare if an ItemStack matches
+	 * @param denyList - deny items, true will use data as a banlist, false will use data as an
+	 * allow only list
+	 * @return true if any items were removed
+	 */
+	public boolean removeArmor(Player player, List<ItemData> list, boolean denyList)
 	{
 		boolean taken_flag = false;
-		if (!player.hasPermission("reginv.armor.keep"))
-		{
-			boolean denyList = denyArmor();
-			List<ItemData> list = getArmorData();
-			ItemStack[] armorContent = player.getInventory().getArmorContents();
-			if (list != null && !list.isEmpty() && armorContent != null)
-			{
-				for (ItemData data : list)
-				{
-					for (int slot = 0; slot < armorContent.length; slot++)
-					{
-						ItemStack stack = armorContent[slot];
-						if (stack != null)
-						{
-							boolean match = stack.getTypeId() == data.stack().getTypeId() && (data.allMeta() || stack.getItemMeta() == data.stack().getItemMeta());
 
-							if (match)
-							{
-								if (denyList)
-								{
-									this.armor.put(slot, stack);
-									armorContent[slot] = null;
-									taken_flag = true;
-								}
-							}
-							else if (!denyList)
-							{
-								this.armor.put(slot, stack);
-								armorContent[slot] = null;
-								taken_flag = true;
-							}
-						}
-					}
-				}
+		if (list != null && !list.isEmpty() && player.getInventory().getArmorContents() != null)
+		{
+			for (ItemData data : list)
+			{
+				if (removeArmor(player, data, denyList))
+					taken_flag = true;
 			}
-			player.getInventory().setArmorContents(armorContent);
 		}
 
+		return taken_flag;
+	}
+
+	/**
+	 * Removes armor from the player using a single data point
+	 * 
+	 * @param player - player
+	 * @param data - ItemData used to compare if an ItemStack matches
+	 * @param denyList - deny items, true will use data as a banlist, false will use data as an
+	 * allow only list
+	 * @return true if any items were removed
+	 */
+	public boolean removeArmor(Player player, ItemData data, boolean denyList)
+	{
+		boolean taken_flag = false;
+		ItemStack[] armorContent = player.getInventory().getArmorContents();
+		for (int slot = 0; slot < armorContent.length; slot++)
+		{
+			ItemStack stack = armorContent[slot];
+			if (stack != null)
+			{
+				boolean match = stack.getTypeId() == data.stack().getTypeId() && (data.allMeta() || stack.getItemMeta() == data.stack().getItemMeta());
+
+				if (match)
+				{
+					if (denyList)
+					{
+						this.armor.put(slot, stack);
+						armorContent[slot] = null;
+						taken_flag = true;
+					}
+				}
+				else if (!denyList)
+				{
+					this.armor.put(slot, stack);
+					armorContent[slot] = null;
+					taken_flag = true;
+				}
+			}
+		}
+		player.getInventory().setArmorContents(armorContent);
 		return taken_flag;
 	}
 
@@ -192,7 +242,6 @@ public abstract class PlayerAreaItems
 				Entry<Integer, ItemStack> entry = it.next();
 				if (entry.getValue() != null)
 				{
-					System.out.println("ArmorSlot: "+entry.getKey() + "  Item: " + armorContent[entry.getKey()]);
 					if (armorContent[entry.getKey()] == null || armorContent[entry.getKey()].getTypeId() == 0)
 					{
 						armorContent[entry.getKey()] = entry.getValue();
