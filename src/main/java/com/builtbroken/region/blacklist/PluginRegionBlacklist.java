@@ -32,11 +32,25 @@ public class PluginRegionBlacklist extends JavaPlugin
 	public HashMap<String, Boolean> playerOptOutMessages = new LinkedHashMap<String, Boolean>();
 
 	/*
-	 * TODO - list of stuff to still do Add: Factions support Add: Chat lang config Add: Global item
-	 * ban list Add: Settings config Add: Chat command to change settings Add: Chat command to op
-	 * out of messages Add: Item save/load to prevent item loss Add: Events for later use and common
-	 * support Merged: Some faction and worldguard common support Add: Chest GUI to show items that
-	 * were removed from the player
+	 * TODO - list of stuff to still do 
+	 * 
+	 * Add: Factions support 
+	 * 
+	 * Add: Chat lang config 
+	 * 
+	 * Add: Global item ban list
+	 * 
+	 * Add: Settings config 
+	 * 
+	 * Add: Chat command to change settings
+	 * 
+	 * Add: Item save/load to prevent item loss
+	 * 
+	 * Add: Events for later use and common support
+	 * 
+	 * Merged: Some faction and worldguard common support
+	 * 
+	 * Add: Chest GUI to show items that were removed from the player
 	 */
 
 	@Override
@@ -46,7 +60,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 		logger().info("Enabled!");
 		loadWorldGuardSupport();
 		loadFactionSupport();
-		getCommand("RegInv").setExecutor(this);
+		// getCommand("RegInv").setExecutor(this);
 	}
 
 	/** Loads listener that deals with Factions plugin support */
@@ -63,7 +77,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 			}
 			else
 			{
-				logger().info("Failed to find factions on plugin list");
+				logger().info("Factions plugin not installed! Skipping Factions support!");
 			}
 		}
 	}
@@ -85,12 +99,12 @@ public class PluginRegionBlacklist extends JavaPlugin
 				}
 				else
 				{
-					logger().info("Failed to find WGCutomFlags on plugin list");
+					logger().info("WGCustomFlags plugin not installed! Skipping WorldGuard support!");
 				}
 			}
 			else
 			{
-				logger().info("Failed to find WorldGuard on plugin list");
+				logger().info("WorldGuard plugin not installed! Skipping WorldGuard support!");
 			}
 		}
 	}
@@ -109,8 +123,8 @@ public class PluginRegionBlacklist extends JavaPlugin
 			logger = new Logger(PluginRegionBlacklist.this.getClass().getCanonicalName(), null)
 			{
 				public void log(LogRecord logRecord)
-				{				
-					
+				{
+
 					logRecord.setMessage(loggerPrefix + logRecord.getMessage());
 					super.log(logRecord);
 				}
@@ -125,7 +139,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 	{
 		if (command.getName().equalsIgnoreCase("RegInv"))
 		{
-			if (args != null && args[0] != null)
+			if (args != null && args.length > 0 && args[0] != null)
 			{
 				String mainCmd = args[0];
 
@@ -189,6 +203,8 @@ public class PluginRegionBlacklist extends JavaPlugin
 					return true;
 				}
 			}
+			sender.sendMessage("/RegInv help");
+			return true;
 		}
 		return false;
 	}
