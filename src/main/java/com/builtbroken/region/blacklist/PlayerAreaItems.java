@@ -36,13 +36,13 @@ public abstract class PlayerAreaItems
 
 	/** Data used to restrict the items in the player's inventory */
 	public abstract List<ItemData> getInventoryData();
-	
+
 	/** Data used to restrict the items in the player's armor set */
 	public abstract List<ItemData> getArmorData();
 
 	/** Is our inventory data a deny list */
 	public abstract boolean denyInventory();
-	
+
 	/** Is our inventory data a deny list */
 	public abstract boolean denyArmor();
 
@@ -62,7 +62,20 @@ public abstract class PlayerAreaItems
 	public boolean removeItems(Player player)
 	{
 		boolean taken_flag = false;
-		if (player != null)
+
+		if (takeInventory(player))
+			taken_flag = true;
+
+		if (takeArmor(player))
+			taken_flag = true;
+
+		return taken_flag;
+	}
+
+	protected boolean takeInventory(Player player)
+	{
+		boolean taken_flag = false;
+		if (!player.hasPermission("reginv.inventory.keep"))
 		{
 			boolean denyList = denyInventory();
 			List<ItemData> list = getInventoryData();
@@ -100,6 +113,48 @@ public abstract class PlayerAreaItems
 		return taken_flag;
 	}
 
+	protected boolean takeArmor(Player player)
+	{
+		boolean taken_flag = false;
+		if (!player.hasPermission("reginv.armor.keep"))
+		{
+			boolean denyList = denyArmor();
+			List<ItemData> list = getArmorData();
+			if (list != null && !list.isEmpty())
+			{
+				for (ItemData data : list)
+				{
+					for (int slot = 0; slot < player.getInventory().getArmorContents().length; slot++)
+					{
+						ItemStack stack = player.getInventory().getArmorContents()[slot];
+						if (stack != null)
+						{
+							boolean match = stack.getTypeId() == data.stack().getTypeId() && (data.allMeta() || stack.getItemMeta() == data.stack().getItemMeta());
+
+							if (match)
+							{
+								if (denyList)
+								{
+									this.armor.put(slot, stack);
+									player.getInventory().getArmorContents()[slot] = null;
+									taken_flag = true;
+								}
+							}
+							else if (!denyList)
+							{
+								this.armor.put(slot, stack);
+								player.getInventory().getArmorContents()[slot] = null;
+								taken_flag = true;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return taken_flag;
+	}
+
 	/** Returns all banned items from the player */
 	public boolean returnItems(Player player)
 	{
@@ -124,6 +179,33 @@ public abstract class PlayerAreaItems
 			}
 			if (!updateMap.isEmpty())
 				inventory.putAll(updateMap);
+
+			// Return armor items
+			updateMap = new HashMap<Integer, ItemStack>();
+			it = armor.entrySet().iterator();
+			while (it.hasNext())
+			{
+				boolean remove = false;
+				Entry<Integer, ItemStack> entry = it.next();
+				if (entry.getValue() != null)
+				{
+					if (player.getInventory().getArmorContents()[entry.getKey()] == null)
+					{
+						player.getInventory().getArmorContents()[entry.getKey()] = entry.getValue();
+					}
+					else
+					{
+						ItemStack returned = returnItem(player, -1, entry.getValue());
+						if (returned == null || returned.getAmount() <= 0)
+							return_flag = remove;
+						else
+							updateMap.put(entry.getKey(), returned);
+					}
+				}
+				it.remove();
+			}
+			if (!updateMap.isEmpty())
+				armor.putAll(updateMap);
 		}
 		return return_flag;
 	}

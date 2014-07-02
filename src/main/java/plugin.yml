@@ -7,3 +7,22 @@ commands:
     RegInv:
         description: Description
         usage: /RegInv <command> [Optional, arguments]
+permissions:
+    reginv.*:
+        description: grants permissions to all commands
+        children: 
+             reginv.inventory.keep: true
+             reginv.armor.keep: true
+             reginv.messages: true
+             reginv.messages.toggle: true
+    reginv.inventory.keep:
+        description: Makes the plugin ignore a user when entering an inventory restricted region
+        default: op
+    reginv.armor.keep:
+        description: Makes the plugin ignore a user when entering an inventory restricted region
+        default: op
+    reginv.messages:
+        description: Allows the user to get inventory change messages
+    reginv.messages.toggle:
+        description: Allows the user to toggle messages on/off
+    
