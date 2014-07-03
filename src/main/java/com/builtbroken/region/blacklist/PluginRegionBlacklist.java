@@ -25,30 +25,28 @@ import com.massivecraft.mcore.util.Txt;
  */
 public class PluginRegionBlacklist extends JavaPlugin
 {
-	private Listener worldGuardListener;
-	private Listener factionsListener;
+	private IBlackListRegion worldGuardListener;
+	private IBlackListRegion factionsListener;
 	private Logger logger;
 	private String loggerPrefix = "";
 	public HashMap<String, Boolean> playerOptOutMessages = new LinkedHashMap<String, Boolean>();
 
 	/*
-	 * TODO - list of stuff to still do 
+	 * TODO - list of stuff to still do
 	 * 
-	 * Add: Factions support 
+	 * Add: Factions support
 	 * 
-	 * Add: Chat lang config 
+	 * Add: Chat lang config
 	 * 
 	 * Add: Global item ban list
 	 * 
-	 * Add: Settings config 
+	 * Add: Settings config
 	 * 
 	 * Add: Chat command to change settings
 	 * 
 	 * Add: Item save/load to prevent item loss
 	 * 
 	 * Add: Events for later use and common support
-	 * 
-	 * Merged: Some faction and worldguard common support
 	 * 
 	 * Add: Chest GUI to show items that were removed from the player
 	 */
@@ -201,6 +199,45 @@ public class PluginRegionBlacklist extends JavaPlugin
 						player.sendMessage("You will receive messages for inventory changes");
 					}
 					return true;
+				}
+				else if (mainCmd.equalsIgnoreCase("region"))
+				{
+					if (worldGuardListener != null)
+					{
+						if (subCmd_flag)
+						{
+							String[] newArgs = new String[args.length - 1];
+							for (int i = 0; i < newArgs.length; i++)
+							{
+								newArgs[i] = args[i + 1];
+							}
+							worldGuardListener.onCommand(sender, args);
+						}
+						else
+						{
+							sender.sendMessage("Supply more args");
+						}
+					}
+					else
+					{
+						sender.sendMessage("WorldGuard support was not loaded");
+					}
+				}
+				else if (mainCmd.equalsIgnoreCase("faction"))
+				{
+					if (factionsListener != null)
+					{
+						String[] newArgs = new String[args.length - 1];
+						for (int i = 0; i < newArgs.length; i++)
+						{
+							newArgs[i] = args[i + 1];
+						}
+						factionsListener.onCommand(sender, args);
+					}
+					else
+					{
+						sender.sendMessage("Factions support was not loaded");
+					}
 				}
 			}
 			sender.sendMessage("/RegInv help");

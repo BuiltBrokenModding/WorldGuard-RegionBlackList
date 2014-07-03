@@ -1,5 +1,7 @@
 package com.builtbroken.region.blacklist.factions;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
 
 import com.builtbroken.region.blacklist.IBlackListRegion;
@@ -18,5 +20,10 @@ public class FactionSupport implements IBlackListRegion
 	public FactionSupport(PluginRegionBlacklist plugin)
 	{
 		this.plugin = plugin;
+	}
+	
+	public boolean onCommand(CommandSender sender, String[] args)
+	{
+		return false;
 	}
 }

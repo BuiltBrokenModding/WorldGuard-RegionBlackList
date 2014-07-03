@@ -5,6 +5,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.bukkit.Location;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,6 +19,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import com.builtbroken.region.blacklist.IBlackListRegion;
+import com.builtbroken.region.blacklist.ItemData;
 import com.builtbroken.region.blacklist.PluginRegionBlacklist;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -29,7 +32,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
  */
 public class WorldGuardSupport implements IBlackListRegion
 {
-	
+
 	private static int CHANGE_IN_DISTANCE = 5;
 	private static int SECONDS_BETWEEN_UPDATES = 10;
 	private static long MILLS_BETWEEN_UPDATES = SECONDS_BETWEEN_UPDATES * 1000;
@@ -155,6 +158,74 @@ public class WorldGuardSupport implements IBlackListRegion
 			return lastPlayerUpdateLocation.get(player.getName());
 		}
 		return null;
+	}
+
+	@Override
+	public boolean onCommand(CommandSender sender, String[] args)
+	{
+		if (args != null && args.length > 0 && args[0] != null)
+		{
+			String mainCmd = args[0];
+
+			boolean isPlayer = sender instanceof Player;
+			boolean subCmd_flag = args.length > 1 && args[1] != null;
+			boolean subCmd2_flag = args.length > 2 && args[2] != null;
+			boolean subCmd3_flag = args.length > 3 && args[3] != null;
+
+			Player player = isPlayer ? (Player) sender : null;
+			String subCmd = subCmd_flag ? args[1] : null;
+			String subCmd2 = subCmd2_flag ? args[2] : null;
+			String subCmd3 = subCmd3_flag ? args[3] : null;
+			if (mainCmd.equalsIgnoreCase("help"))
+			{
+				sender.sendMessage("/reginv region allow <region> <id:meta,id...>");
+				sender.sendMessage("/reginv region allow add <region> <id:meta,id...>");
+				sender.sendMessage("/reginv region allow remove <region> <id:meta,id...>");
+				sender.sendMessage("/reginv region deny  <region> <id:meta,id...>");
+				sender.sendMessage("/reginv region deny add <region> <id:meta,id...>");
+				sender.sendMessage("/reginv region deny remove <region> <id:meta,id...>");
+				return true;
+			}
+			else if (mainCmd.equalsIgnoreCase("allow") || mainCmd.equalsIgnoreCase("deny"))
+			{
+				boolean allow = mainCmd.equalsIgnoreCase("allow");
+				if (subCmd_flag)
+				{
+					ProtectedRegion region = WGUtility.getRegion(subCmd);
+					if (region != null)
+					{
+						if (subCmd2_flag)
+						{
+							boolean add = subCmd2.equalsIgnoreCase("add") || !subCmd2.equalsIgnoreCase("remove");
+							boolean sub = subCmd2.equalsIgnoreCase("add") || subCmd2.equalsIgnoreCase("remove");
+							if (!sub || sub && subCmd3_flag)
+							{
+								String toSplit = sub ? subCmd3 : subCmd2;
+								List<ItemData> data = allow ? ALLOW_ITEM_FLAG.loadFromDb(toSplit) : DENY_ITEM_FLAG.loadFromDb(toSplit);
+							}
+							else
+							{
+								sender.sendMessage("Item data needed");
+								return true;
+							}
+						}
+						else
+						{
+							sender.sendMessage("Unkown region: " + subCmd);
+							return true;
+						}
+					}
+					else
+					{
+						sender.sendMessage("Unkown region: " + subCmd);
+						return true;
+					}
+				}
+				sender.sendMessage("/reginv region allow <region> <id:meta,id:meta,id,id:All>");
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/********************************

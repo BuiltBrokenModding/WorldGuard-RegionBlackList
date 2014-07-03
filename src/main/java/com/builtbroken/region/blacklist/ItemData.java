@@ -40,6 +40,14 @@ public class ItemData
 		return stack.getTypeId() + (allMeta ? "" : ":" + stack.getItemMeta());
 	}
 
+	public boolean isMatch(ItemStack stack)
+	{
+		if(stack != null)
+		{
+			return stack.getTypeId() == stack().getTypeId() && (allMeta() || stack.getItemMeta() == stack().getItemMeta());
+		}
+		return false;
+	}
 	@Override
 	public boolean equals(Object object)
 	{

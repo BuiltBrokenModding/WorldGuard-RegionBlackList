@@ -64,16 +64,7 @@ public class RegionItems extends PlayerAreaItems
 
 	public ProtectedRegion getRegion()
 	{
-		WorldGuardPlugin guard = WGUtility.worldGuard();
-		if (guard != null)
-		{
-			RegionManager manager = guard.getRegionManager(world);
-			if (manager != null)
-			{
-				return manager.getRegion(areaName);
-			}
-		}
-		return null;
+		return WGUtility.getRegion(world, getAreaName());
 	}
 
 	@Override
@@ -113,6 +104,10 @@ public class RegionItems extends PlayerAreaItems
 			if (region.getFlags().containsKey(WorldGuardSupport.ALLOW_ARMOR_FLAG))
 			{
 				return false;
+			}
+			else if (region.getFlags().containsKey(WorldGuardSupport.DENY_ARMOR_FLAG))
+			{
+				return true;
 			}
 		}
 		return false;

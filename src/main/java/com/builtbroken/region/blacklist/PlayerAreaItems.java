@@ -119,7 +119,7 @@ public abstract class PlayerAreaItems
 			ItemStack stack = player.getInventory().getContents()[slot];
 			if (stack != null)
 			{
-				boolean match = stack.getTypeId() == data.stack().getTypeId() && (data.allMeta() || stack.getItemMeta() == data.stack().getItemMeta());
+				boolean match = data.isMatch(stack);
 
 				if (match)
 				{
@@ -181,15 +181,18 @@ public abstract class PlayerAreaItems
 		ItemStack[] armorContent = player.getInventory().getArmorContents();
 		for (int slot = 0; slot < armorContent.length; slot++)
 		{
+			System.out.println("Armor slot: " + slot +"  item: " + armorContent[slot]);
 			ItemStack stack = armorContent[slot];
 			if (stack != null)
 			{
-				boolean match = stack.getTypeId() == data.stack().getTypeId() && (data.allMeta() || stack.getItemMeta() == data.stack().getItemMeta());
+				boolean match = data.isMatch(stack);
 
 				if (match)
 				{
+					System.out.println("Armor is a match");
 					if (denyList)
 					{
+						System.out.println("Denying armor");
 						this.armor.put(slot, stack);
 						armorContent[slot] = null;
 						taken_flag = true;
@@ -197,6 +200,7 @@ public abstract class PlayerAreaItems
 				}
 				else if (!denyList)
 				{
+					System.out.println("Armor not allowed");
 					this.armor.put(slot, stack);
 					armorContent[slot] = null;
 					taken_flag = true;

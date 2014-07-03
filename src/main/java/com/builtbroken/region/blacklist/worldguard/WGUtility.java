@@ -12,6 +12,7 @@ import com.mewin.WGCustomFlags.WGCustomFlagsPlugin;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.GlobalRegionManager;
 import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -55,6 +56,40 @@ public class WGUtility
 			}
 		}
 		return wgFlags;
+	}
+
+	public static ProtectedRegion getRegion(String name)
+	{
+		WorldGuardPlugin guard = WGUtility.worldGuard();
+		if (guard != null)
+		{
+			for(World world : Bukkit.getWorlds())
+			{
+				RegionManager manager = guard.getRegionManager(world);
+				if (manager != null)
+				{
+					if(manager.getRegion(name) != null)
+					{
+						return manager.getRegion(name);
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public static ProtectedRegion getRegion(World world, String name)
+	{
+		WorldGuardPlugin guard = WGUtility.worldGuard();
+		if (guard != null)
+		{
+			RegionManager manager = guard.getRegionManager(world);
+			if (manager != null)
+			{
+				return manager.getRegion(name);
+			}
+		}
+		return null;
 	}
 
 	public static ApplicableRegionSet getRegions(World world, Vector vec)
