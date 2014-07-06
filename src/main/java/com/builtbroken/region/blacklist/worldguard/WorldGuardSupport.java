@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
@@ -318,18 +319,26 @@ public class WorldGuardSupport implements IBlackListRegion
 
 	public void load()
 	{
-		try
+		File file = new File(plugin.getDataFolder() + File.separator + "wgData.dat");
+		if (file.exists())
 		{
-			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(plugin.getDataFolder() + File.separator + "wgData.dat"));
-			Object result = ois.readObject();
-			if(result instanceof HashMap)
+			try
 			{
-				this.playerItemsPerRegion.putAll((HashMap<? extends String, ? extends RegionList>) result);
+				ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+				Object result = ois.readObject();
+				if (result instanceof HashMap)
+				{
+					this.playerItemsPerRegion.putAll((HashMap<? extends String, ? extends RegionList>) result);
+				}
 			}
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
+			catch (NotSerializableException e)
+			{
+
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 }
