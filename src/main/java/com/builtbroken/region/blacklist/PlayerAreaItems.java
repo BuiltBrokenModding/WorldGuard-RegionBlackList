@@ -1,5 +1,9 @@
 package com.builtbroken.region.blacklist;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -17,8 +21,10 @@ import org.bukkit.inventory.ItemStack;
  * @author Robert Seifert
  * 
  */
-public abstract class PlayerAreaItems
+public abstract class PlayerAreaItems implements Serializable
 {
+	private static final long serialVersionUID = 2694201623625810072L;
+
 	protected final String areaName;
 
 	protected final World world;
@@ -181,7 +187,7 @@ public abstract class PlayerAreaItems
 		ItemStack[] armorContent = player.getInventory().getArmorContents();
 		for (int slot = 0; slot < armorContent.length; slot++)
 		{
-			System.out.println("Armor slot: " + slot +"  item: " + armorContent[slot]);
+			System.out.println("Armor slot: " + slot + "  item: " + armorContent[slot]);
 			ItemStack stack = armorContent[slot];
 			if (stack != null)
 			{
