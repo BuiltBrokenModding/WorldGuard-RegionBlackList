@@ -200,7 +200,7 @@ public abstract class PlayerAreaItems implements Serializable
 					//System.out.println("Armor is a match");
 					if (denyList)
 					{
-						System.out.println("Denying armor");
+						//System.out.println("Denying armor");
 						this.armor.add(new ItemWrapper(stack, slot));
 						armorContent[slot] = null;
 						taken_flag = true;
@@ -228,17 +228,11 @@ public abstract class PlayerAreaItems implements Serializable
 			Iterator<ItemWrapper> it = inventory.iterator();
 			while (it.hasNext())
 			{
-				boolean remove = false;
-				ItemWrapper entry = it.next();
-				if (entry.getStack() != null)
+				ItemWrapper item = it.next();
+				if (item.returnItem(player))
 				{
-					ItemStack returned = returnItem(player, entry.getSlot(), entry.getStack());
-					if (returned == null || returned.getAmount() <= 0)
-						return_flag = remove;
-					else
-						entry.setStack(returned);
-				}
-				it.remove();
+					it.remove();
+				}				
 			}
 
 			// Return armor items
@@ -246,25 +240,11 @@ public abstract class PlayerAreaItems implements Serializable
 			ItemStack[] armorContent = player.getInventory().getArmorContents();
 			while (it.hasNext())
 			{
-				boolean remove = false;
-				ItemWrapper entry = it.next();
-				if (entry.getStack() != null)
+				ItemWrapper item = it.next();
+				if (item.returnArmor(player, armorContent))
 				{
-					if (armorContent[entry.getSlot()] == null || armorContent[entry.getSlot()].getTypeId() == 0)
-					{
-						armorContent[entry.getSlot()] = entry.getStack();
-						return_flag = true;
-					}
-					else
-					{
-						ItemStack returned = returnItem(player, -1, entry.getStack());
-						if (returned == null || returned.getAmount() <= 0)
-							return_flag = remove;
-						else
-							entry.setStack(returned);
-					}
-				}
-				it.remove();
+					it.remove();
+				}				
 			}
 			player.getInventory().setArmorContents(armorContent);
 		}
@@ -280,41 +260,8 @@ public abstract class PlayerAreaItems implements Serializable
 	public boolean isEmpty()
 	{
 		return inventory.isEmpty() && armor.isEmpty();
-	}
-
-	/** Returns a single item to the player's inventory */
-	public static ItemStack returnItem(Player player, ItemStack stack)
-	{
-		return returnItem(player, -1, stack);
-	}
-
-	/** Returns a single item to the player's inventory */
-	public static ItemStack returnItem(Player player, int slot, ItemStack stack)
-	{
-		if (player != null && stack != null)
-		{
-			if (slot >= 0 && player.getInventory().getItem(slot) == null)
-			{
-				player.getInventory().setItem(slot, stack);
-				return null;
-			}
-			else
-			{
-				HashMap<Integer, ItemStack> re = player.getInventory().addItem(stack);
-				if (re != null && !re.isEmpty())
-				{
-					for (Entry<Integer, ItemStack> entry : re.entrySet())
-					{
-						if (entry.getValue() != null)
-							return entry.getValue();
-					}
-				}
-				return null;
-			}
-		}
-		return stack;
-	}
-
+	} 
+	
 	@Override
 	public boolean equals(Object object)
 	{
