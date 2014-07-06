@@ -21,9 +21,24 @@ public class FactionSupport implements IBlackListRegion
 	{
 		this.plugin = plugin;
 	}
-	
+
+	@Override
 	public boolean onCommand(CommandSender sender, String[] args)
 	{
 		return false;
+	}
+
+	@Override
+	public void save()
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void load()
+	{
+		// TODO Auto-generated method stub
+
 	}
 }

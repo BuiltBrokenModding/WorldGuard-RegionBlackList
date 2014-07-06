@@ -1,15 +1,25 @@
 package com.builtbroken.region.blacklist.worldguard;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Location;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.libs.com.google.gson.Gson;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
@@ -17,6 +27,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.world.WorldSaveEvent;
 
 import com.builtbroken.region.blacklist.IBlackListRegion;
 import com.builtbroken.region.blacklist.ItemData;
@@ -32,8 +43,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
  */
 public class WorldGuardSupport implements IBlackListRegion
 {
-
-	private static int CHANGE_IN_DISTANCE = 5;
+	private static int CHANGE_IN_DISTANCE = 10;
 	private static int SECONDS_BETWEEN_UPDATES = 10;
 	private static long MILLS_BETWEEN_UPDATES = SECONDS_BETWEEN_UPDATES * 1000;
 
@@ -46,6 +56,8 @@ public class WorldGuardSupport implements IBlackListRegion
 	private HashMap<String, RegionList> playerItemsPerRegion = new LinkedHashMap<String, RegionList>();
 	private HashMap<String, Vector> lastPlayerUpdateLocation = new LinkedHashMap<String, Vector>();
 	private HashMap<String, Long> lastPlayerUpateTime = new LinkedHashMap<String, Long>();
+
+	private Long lastFileSave = 0L;
 
 	public WorldGuardSupport(PluginRegionBlacklist plugin)
 	{
@@ -194,14 +206,16 @@ public class WorldGuardSupport implements IBlackListRegion
 					ProtectedRegion region = WGUtility.getRegion(subCmd);
 					if (region != null)
 					{
-						if (subCmd2_flag)
+						if (subCmd2_flag && (subCmd2.equalsIgnoreCase("add") || subCmd2.equalsIgnoreCase("remove")))
 						{
-							boolean add = subCmd2.equalsIgnoreCase("add") || !subCmd2.equalsIgnoreCase("remove");
+							boolean add = subCmd2.equalsIgnoreCase("add") && !subCmd2.equalsIgnoreCase("remove");
 							boolean sub = subCmd2.equalsIgnoreCase("add") || subCmd2.equalsIgnoreCase("remove");
 							if (!sub || sub && subCmd3_flag)
 							{
 								String toSplit = sub ? subCmd3 : subCmd2;
 								List<ItemData> data = allow ? ALLOW_ITEM_FLAG.loadFromDb(toSplit) : DENY_ITEM_FLAG.loadFromDb(toSplit);
+								sender.sendMessage("Command is unfinished");
+								return true;
 							}
 							else
 							{
@@ -211,7 +225,7 @@ public class WorldGuardSupport implements IBlackListRegion
 						}
 						else
 						{
-							sender.sendMessage("Unkown region: " + subCmd);
+							sender.sendMessage("Unkown Command");
 							return true;
 						}
 					}
@@ -286,4 +300,36 @@ public class WorldGuardSupport implements IBlackListRegion
 		// TODO if item is banned send strait to item cache
 	}
 
+	public void save()
+	{
+		try
+		{
+			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(plugin.getDataFolder() + File.separator + "wgData.dat"));
+			oos.writeObject(this.playerItemsPerRegion);
+			oos.flush();
+			oos.close();
+			// Handle I/O exceptions
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void load()
+	{
+		try
+		{
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(plugin.getDataFolder() + File.separator + "wgData.dat"));
+			Object result = ois.readObject();
+			if(result instanceof HashMap)
+			{
+				this.playerItemsPerRegion.putAll((HashMap<? extends String, ? extends RegionList>) result);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 }

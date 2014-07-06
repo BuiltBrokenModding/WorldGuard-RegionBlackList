@@ -13,6 +13,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.builtbroken.region.blacklist.factions.FactionSupport;
 import com.builtbroken.region.blacklist.worldguard.WorldGuardSupport;
 import com.massivecraft.mcore.util.Txt;
 
@@ -70,7 +71,8 @@ public class PluginRegionBlacklist extends JavaPlugin
 			if (factions != null)
 			{
 				logger().info("Factions support loaded");
-				factionsListener = new WorldGuardSupport(this);
+				factionsListener = new FactionSupport(this);
+				factionsListener.load();
 				getServer().getPluginManager().registerEvents(this.factionsListener, this);
 			}
 			else
@@ -93,6 +95,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 				{
 					logger().info("WorldGuard support loaded");
 					worldGuardListener = new WorldGuardSupport(this);
+					worldGuardListener.load();
 					getServer().getPluginManager().registerEvents(this.worldGuardListener, this);
 				}
 				else
@@ -111,6 +114,10 @@ public class PluginRegionBlacklist extends JavaPlugin
 	public void onDisable()
 	{
 		logger().info("Disabled!");
+		if (worldGuardListener != null)
+			worldGuardListener.save();
+		if (factionsListener != null)
+			factionsListener.save();
 	}
 
 	/** Logger used by the plugin, mainly just prefixes everything with the name */
