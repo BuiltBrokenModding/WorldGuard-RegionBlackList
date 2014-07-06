@@ -52,7 +52,7 @@ public class ItemWrapper
 	/** Returns a single item to the player's inventory */
 	public boolean returnItem(Player player)
 	{
-		ItemStack stack = returnItem(player, -1);
+		ItemStack stack = returnItem(player, getSlot());
 		if (stack == null || stack.getAmount() <= 0)
 			return true;
 		else
