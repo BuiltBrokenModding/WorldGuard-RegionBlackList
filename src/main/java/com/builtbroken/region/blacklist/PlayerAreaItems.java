@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -29,15 +30,15 @@ public abstract class PlayerAreaItems implements Serializable
 
 	protected final World world;
 
-	protected final HashMap<Integer, ItemStack> inventory;
-	protected final HashMap<Integer, ItemStack> armor;
+	protected final List<ItemWrapper> inventory;
+	protected final List<ItemWrapper> armor;
 
 	public PlayerAreaItems(World world, String name)
 	{
 		this.world = world;
 		this.areaName = name;
-		inventory = new LinkedHashMap<Integer, ItemStack>();
-		armor = new LinkedHashMap<Integer, ItemStack>();
+		inventory = new ArrayList<ItemWrapper>();
+		armor = new ArrayList<ItemWrapper>();
 	}
 
 	/** Data used to restrict the items in the player's inventory */
@@ -126,19 +127,20 @@ public abstract class PlayerAreaItems implements Serializable
 			if (stack != null)
 			{
 				boolean match = data.isMatch(stack);
-
+				int slotPlace = logSlot ? slot : -1;
 				if (match)
 				{
 					if (denyList)
 					{
-						this.inventory.put(logSlot ? slot : -1, stack);
+						
+						this.inventory.add(new ItemWrapper(stack, slotPlace));
 						player.getInventory().setItem(slot, null);
 						taken_flag = true;
 					}
 				}
 				else if (!denyList)
 				{
-					this.inventory.put(logSlot ? slot : -1, stack);
+					this.inventory.add(new ItemWrapper(stack, slotPlace));
 					player.getInventory().setItem(slot, null);
 					taken_flag = true;
 				}
@@ -187,7 +189,7 @@ public abstract class PlayerAreaItems implements Serializable
 		ItemStack[] armorContent = player.getInventory().getArmorContents();
 		for (int slot = 0; slot < armorContent.length; slot++)
 		{
-			System.out.println("Armor slot: " + slot + "  item: " + armorContent[slot]);
+			//System.out.println("Armor slot: " + slot + "  item: " + armorContent[slot]);
 			ItemStack stack = armorContent[slot];
 			if (stack != null)
 			{
@@ -195,19 +197,19 @@ public abstract class PlayerAreaItems implements Serializable
 
 				if (match)
 				{
-					System.out.println("Armor is a match");
+					//System.out.println("Armor is a match");
 					if (denyList)
 					{
 						System.out.println("Denying armor");
-						this.armor.put(slot, stack);
+						this.armor.add(new ItemWrapper(stack, slot));
 						armorContent[slot] = null;
 						taken_flag = true;
 					}
 				}
 				else if (!denyList)
 				{
-					System.out.println("Armor not allowed");
-					this.armor.put(slot, stack);
+					//System.out.println("Armor not allowed");
+					this.armor.add(new ItemWrapper(stack, slot));
 					armorContent[slot] = null;
 					taken_flag = true;
 				}
@@ -223,54 +225,48 @@ public abstract class PlayerAreaItems implements Serializable
 		boolean return_flag = false;
 		if (player != null && !this.isEmpty())
 		{
-			HashMap<Integer, ItemStack> updateMap = new HashMap<Integer, ItemStack>();
-			Iterator<Entry<Integer, ItemStack>> it = inventory.entrySet().iterator();
+			Iterator<ItemWrapper> it = inventory.iterator();
 			while (it.hasNext())
 			{
 				boolean remove = false;
-				Entry<Integer, ItemStack> entry = it.next();
-				if (entry.getValue() != null)
+				ItemWrapper entry = it.next();
+				if (entry.getStack() != null)
 				{
-					ItemStack returned = returnItem(player, entry.getKey(), entry.getValue());
+					ItemStack returned = returnItem(player, entry.getSlot(), entry.getStack());
 					if (returned == null || returned.getAmount() <= 0)
 						return_flag = remove;
 					else
-						updateMap.put(entry.getKey(), returned);
+						entry.setStack(returned);
 				}
 				it.remove();
 			}
-			if (!updateMap.isEmpty())
-				inventory.putAll(updateMap);
 
 			// Return armor items
-			updateMap = new HashMap<Integer, ItemStack>();
-			it = armor.entrySet().iterator();
+			it = armor.iterator();
 			ItemStack[] armorContent = player.getInventory().getArmorContents();
 			while (it.hasNext())
 			{
 				boolean remove = false;
-				Entry<Integer, ItemStack> entry = it.next();
-				if (entry.getValue() != null)
+				ItemWrapper entry = it.next();
+				if (entry.getStack() != null)
 				{
-					if (armorContent[entry.getKey()] == null || armorContent[entry.getKey()].getTypeId() == 0)
+					if (armorContent[entry.getSlot()] == null || armorContent[entry.getSlot()].getTypeId() == 0)
 					{
-						armorContent[entry.getKey()] = entry.getValue();
+						armorContent[entry.getSlot()] = entry.getStack();
 						return_flag = true;
 					}
 					else
 					{
-						ItemStack returned = returnItem(player, -1, entry.getValue());
+						ItemStack returned = returnItem(player, -1, entry.getStack());
 						if (returned == null || returned.getAmount() <= 0)
 							return_flag = remove;
 						else
-							updateMap.put(entry.getKey(), returned);
+							entry.setStack(returned);
 					}
 				}
 				it.remove();
 			}
 			player.getInventory().setArmorContents(armorContent);
-			if (!updateMap.isEmpty())
-				armor.putAll(updateMap);
 		}
 		return return_flag;
 	}
