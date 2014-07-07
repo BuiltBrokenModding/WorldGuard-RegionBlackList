@@ -44,10 +44,6 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
  */
 public class WorldGuardSupport implements IBlackListRegion
 {
-	private static int CHANGE_IN_DISTANCE = 10;
-	private static int SECONDS_BETWEEN_UPDATES = 10;
-	private static long MILLS_BETWEEN_UPDATES = SECONDS_BETWEEN_UPDATES * 1000;
-
 	public static final ItemFlag ALLOW_ITEM_FLAG = new ItemFlag("allow-items");
 	public static final ItemFlag DENY_ITEM_FLAG = new ItemFlag("deny-items");
 	public static final ItemFlag ALLOW_ARMOR_FLAG = new ItemFlag("allow-armor");
@@ -55,10 +51,6 @@ public class WorldGuardSupport implements IBlackListRegion
 
 	private PluginRegionBlacklist plugin = null;
 	private HashMap<String, RegionList> playerItemsPerRegion = new LinkedHashMap<String, RegionList>();
-	private HashMap<String, Vector> lastPlayerUpdateLocation = new LinkedHashMap<String, Vector>();
-	private HashMap<String, Long> lastPlayerUpateTime = new LinkedHashMap<String, Long>();
-
-	private Long lastFileSave = 0L;
 
 	public WorldGuardSupport(PluginRegionBlacklist plugin)
 	{
@@ -70,23 +62,10 @@ public class WorldGuardSupport implements IBlackListRegion
 	}
 
 	/** Updated item data for player */
-	public void update(Player player)
+	public void update(Player player, Location location)
 	{
-		if (player != null)
-		{
-			Vector lastLocation = getLastLocation(player);
-			Location loc = player.getLocation();
-			Vector vec = new Vector(loc.getX(), loc.getY(), loc.getZ());
-			boolean distance_flag = lastLocation == null || lastLocation.distance(vec) >= CHANGE_IN_DISTANCE;
-			boolean time_flag = !lastPlayerUpateTime.containsKey(player.getName()) || System.currentTimeMillis() - lastPlayerUpateTime.get(player.getName()) >= MILLS_BETWEEN_UPDATES;
+		updatePlayerRegions(player, getRegionItems(player), WGUtility.getRegionsWithFlags(player.getWorld(), new Vector(location.getX(), location.getY(), location.getZ()), DENY_ITEM_FLAG, ALLOW_ITEM_FLAG));
 
-			if (distance_flag || time_flag)
-			{
-				updatePlayerRegions(player, getRegionItems(player), WGUtility.getRegionsWithFlags(player.getWorld(), vec, DENY_ITEM_FLAG, ALLOW_ITEM_FLAG));
-				this.lastPlayerUpdateLocation.put(player.getName(), new Vector(vec));
-				this.lastPlayerUpateTime.put(player.getName(), System.currentTimeMillis());
-			}
-		}
 	}
 
 	public void updatePlayerRegions(Player player, RegionList regions, List<ProtectedRegion> regionList)
@@ -144,8 +123,15 @@ public class WorldGuardSupport implements IBlackListRegion
 		}
 		else
 		{
-			clearPlayer(player);
+			unload(player);
 		}
+	}
+
+	public void unload(Player player)
+	{
+		RegionList list = this.getRegionItems(player);
+		if (list != null && !list.isEmpty())
+			list.clearPlayer();
 	}
 
 	/** Regions linked to the player with items that belong to the player */
@@ -161,16 +147,6 @@ public class WorldGuardSupport implements IBlackListRegion
 			list = new RegionList(player);
 		}
 		return list;
-	}
-
-	/** Player's last location when we ran an update */
-	public Vector getLastLocation(Player player)
-	{
-		if (lastPlayerUpdateLocation.containsKey(player.getName()))
-		{
-			return lastPlayerUpdateLocation.get(player.getName());
-		}
-		return null;
 	}
 
 	@Override
@@ -243,64 +219,6 @@ public class WorldGuardSupport implements IBlackListRegion
 		return false;
 	}
 
-	/********************************
-	 * Events that dump the player's data
-	 ********************************/
-
-	@EventHandler
-	public void onDeath(EntityDeathEvent event)
-	{
-		if (event.getEntity() instanceof Player)
-			clearPlayer((Player) event.getEntity());
-	}
-
-	@EventHandler
-	public void onPlayerQuit(PlayerQuitEvent event)
-	{
-		clearPlayer(event.getPlayer());
-	}
-
-	@EventHandler
-	public void onKicked(PlayerKickEvent evt)
-	{
-		clearPlayer(evt.getPlayer());
-	}
-
-	public void clearPlayer(Player player)
-	{
-		RegionList list = this.getRegionItems(player);
-		if (list != null)
-			list.clearPlayer();
-	}
-
-	/********************************
-	 * Events that trigger updates
-	 ********************************/
-
-	@EventHandler
-	public void onRespawn(PlayerRespawnEvent event)
-	{
-		update(event.getPlayer());
-	}
-
-	@EventHandler
-	public void onPlayerMove(PlayerMoveEvent event)
-	{
-		update(event.getPlayer());
-	}
-
-	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent event)
-	{
-		update(event.getPlayer());
-	}
-
-	// @EventHandler
-	public void onPickUpItem(PlayerPickupItemEvent event)
-	{
-		// TODO if item is banned send strait to item cache
-	}
-
 	public void save()
 	{
 		try
@@ -317,6 +235,7 @@ public class WorldGuardSupport implements IBlackListRegion
 		}
 	}
 
+	@Override
 	public void load()
 	{
 		File file = new File(plugin.getDataFolder() + File.separator + "wgData.dat");
@@ -340,5 +259,11 @@ public class WorldGuardSupport implements IBlackListRegion
 				e.printStackTrace();
 			}
 		}
+	}
+
+	@Override
+	public String getName()
+	{
+		return "WorldGuard";
 	}
 }

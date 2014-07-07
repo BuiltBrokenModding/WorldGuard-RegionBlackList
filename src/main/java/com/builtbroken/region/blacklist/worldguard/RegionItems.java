@@ -5,6 +5,7 @@ import java.util.List;
 import org.bukkit.World;
 
 import com.builtbroken.region.blacklist.ItemData;
+import com.builtbroken.region.blacklist.ItemList;
 import com.builtbroken.region.blacklist.PlayerAreaItems;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
@@ -28,35 +29,39 @@ public class RegionItems extends PlayerAreaItems
 		this(world, region.getId());
 	}
 
-	@Override
-	public boolean denyInventory()
-	{
-		ProtectedRegion region = getRegion();
-		if (region != null)
-		{
-			if (region.getFlags().containsKey(WorldGuardSupport.ALLOW_ITEM_FLAG))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
 	/** Gets the data used to block items */
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<ItemData> getInventoryData()
+	public ItemList getInventoryData()
 	{
 		ProtectedRegion region = getRegion();
 		if (region != null)
 		{
 			if (region.getFlags().containsKey(WorldGuardSupport.ALLOW_ITEM_FLAG))
 			{
-				return (List<ItemData>) region.getFlags().get(WorldGuardSupport.ALLOW_ITEM_FLAG);
+				return new ItemList(((List<ItemData>) region.getFlags().get(WorldGuardSupport.ALLOW_ITEM_FLAG)), false);
 			}
 			else if (region.getFlags().containsKey(WorldGuardSupport.DENY_ITEM_FLAG))
 			{
-				return (List<ItemData>) region.getFlags().get(WorldGuardSupport.DENY_ITEM_FLAG);
+				return new ItemList(((List<ItemData>) region.getFlags().get(WorldGuardSupport.DENY_ITEM_FLAG)), true);
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public ItemList getArmorData()
+	{
+		ProtectedRegion region = getRegion();
+		if (region != null)
+		{
+			if (region.getFlags().containsKey(WorldGuardSupport.ALLOW_ARMOR_FLAG))
+			{
+				return new ItemList(((List<ItemData>) region.getFlags().get(WorldGuardSupport.ALLOW_ARMOR_FLAG)), false);
+			}
+			else if (region.getFlags().containsKey(WorldGuardSupport.DENY_ARMOR_FLAG))
+			{
+				return new ItemList(((List<ItemData>) region.getFlags().get(WorldGuardSupport.DENY_ARMOR_FLAG)), true);
 			}
 		}
 		return null;
@@ -77,40 +82,5 @@ public class RegionItems extends PlayerAreaItems
 		return super.equals(object);
 	}
 
-	@Override
-	public List<ItemData> getArmorData()
-	{
-		ProtectedRegion region = getRegion();
-		if (region != null)
-		{
-			if (region.getFlags().containsKey(WorldGuardSupport.ALLOW_ARMOR_FLAG))
-			{
-				return (List<ItemData>) region.getFlags().get(WorldGuardSupport.ALLOW_ARMOR_FLAG);
-			}
-			else if (region.getFlags().containsKey(WorldGuardSupport.DENY_ARMOR_FLAG))
-			{
-				return (List<ItemData>) region.getFlags().get(WorldGuardSupport.DENY_ARMOR_FLAG);
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public boolean denyArmor()
-	{
-		ProtectedRegion region = getRegion();
-		if (region != null)
-		{
-			if (region.getFlags().containsKey(WorldGuardSupport.ALLOW_ARMOR_FLAG))
-			{
-				return false;
-			}
-			else if (region.getFlags().containsKey(WorldGuardSupport.DENY_ARMOR_FLAG))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
+	
 }

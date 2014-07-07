@@ -7,26 +7,21 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-@SuppressWarnings("serial")
+
 public class RegionList extends LinkedList<RegionItems>
 {
-	Player player = null;
+	private static final long serialVersionUID = 3009886584617520185L;
 	String playerName = null;
-	
+
 	public RegionList(Player player)
 	{
-		this.player = player;
 		playerName = player.getName();
 	}
-	
+
 	/** Player this list is connected too */
 	public Player getPlayer()
 	{
-		if(player == null)
-		{
-			player = Bukkit.getPlayer(playerName);
-		}
-		return player;
+		return Bukkit.getPlayer(playerName);
 	}
 
 	/** Gets an item region by string name */

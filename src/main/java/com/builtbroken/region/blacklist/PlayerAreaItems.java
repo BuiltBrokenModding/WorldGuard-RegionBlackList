@@ -42,16 +42,10 @@ public abstract class PlayerAreaItems implements Serializable
 	}
 
 	/** Data used to restrict the items in the player's inventory */
-	public abstract List<ItemData> getInventoryData();
+	public abstract ItemList getInventoryData();
 
 	/** Data used to restrict the items in the player's armor set */
-	public abstract List<ItemData> getArmorData();
-
-	/** Is our inventory data a deny list */
-	public abstract boolean denyInventory();
-
-	/** Is our inventory data a deny list */
-	public abstract boolean denyArmor();
+	public abstract ItemList getArmorData();
 
 	/** Removes all banned items from the player */
 	public boolean removeItems(String user)
@@ -73,13 +67,13 @@ public abstract class PlayerAreaItems implements Serializable
 		// Take items from player's inventory
 		if (!player.hasPermission("reginv.inventory.keep"))
 		{
-			if (removeItems(player, getInventoryData(), denyInventory(), true))
+			if (removeItems(player, getInventoryData(), true))
 				taken_flag = true;
 		}
 		// Take items from player's armor slots
 		if (!player.hasPermission("reginv.armor.keep"))
 		{
-			if (removeArmor(player, getArmorData(), denyArmor()))
+			if (removeArmor(player, getArmorData()))
 				taken_flag = true;
 		}
 
@@ -95,14 +89,14 @@ public abstract class PlayerAreaItems implements Serializable
 	 * allow only list
 	 * @return true if any items were removed
 	 */
-	public boolean removeItems(Player player, List<ItemData> list, boolean denyList, boolean logSlot)
+	public boolean removeItems(Player player, ItemList list, boolean logSlot)
 	{
 		boolean taken_flag = false;
 		if (list != null && !list.isEmpty())
 		{
 			for (ItemData data : list)
 			{
-				if (removeItems(player, data, denyList, logSlot))
+				if (removeItems(player, data, list.denyItems(), logSlot))
 					taken_flag = true;
 			}
 		}
@@ -154,11 +148,9 @@ public abstract class PlayerAreaItems implements Serializable
 	 * 
 	 * @param player - player
 	 * @param data - List of ItemData used to compare if an ItemStack matches
-	 * @param denyList - deny items, true will use data as a banlist, false will use data as an
-	 * allow only list
 	 * @return true if any items were removed
 	 */
-	public boolean removeArmor(Player player, List<ItemData> list, boolean denyList)
+	public boolean removeArmor(Player player, ItemList list)
 	{
 		boolean taken_flag = false;
 
@@ -166,7 +158,7 @@ public abstract class PlayerAreaItems implements Serializable
 		{
 			for (ItemData data : list)
 			{
-				if (removeArmor(player, data, denyList))
+				if (removeArmor(player, data, list.denyItems()))
 					taken_flag = true;
 			}
 		}

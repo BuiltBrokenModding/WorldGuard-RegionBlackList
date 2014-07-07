@@ -1,6 +1,8 @@
 package com.builtbroken.region.blacklist;
 
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 /**
@@ -10,9 +12,21 @@ import org.bukkit.event.Listener;
  */
 public interface IBlackListRegion extends Listener
 {
+	/** Name of the support, used for file saving and lookup maps */
+	public String getName();
+	
+	/** Called to update the player's inventory based on the location */
+	public void update(Player player, Location location);
+	
+	/** Called to unload all data for the player */
+	public void unload(Player player);
+	
+	/** Command trigger from the main command */
 	public boolean onCommand(CommandSender sender, String[] args);
 
+	/** Called to save to a file */
 	public void save();
 
+	/** Called to load from a file */
 	public void load();
 }

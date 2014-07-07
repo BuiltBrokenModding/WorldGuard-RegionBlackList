@@ -26,10 +26,11 @@ import com.massivecraft.mcore.util.Txt;
  */
 public class PluginRegionBlacklist extends JavaPlugin
 {
-	private IBlackListRegion worldGuardListener;
-	private IBlackListRegion factionsListener;
-	private Logger logger;
-	private String loggerPrefix = "";
+	IBlackListRegion worldGuardListener;
+	IBlackListRegion factionsListener;
+	PlayerEventHandler supportHandler;
+	Logger logger;
+	String loggerPrefix = "";
 	public HashMap<String, Boolean> playerOptOutMessages = new LinkedHashMap<String, Boolean>();
 
 	/*
@@ -57,9 +58,10 @@ public class PluginRegionBlacklist extends JavaPlugin
 	{
 		loggerPrefix = String.format("[InvReg %s]", this.getDescription().getVersion());
 		logger().info("Enabled!");
+		supportHandler = new PlayerEventHandler(this);
+		getServer().getPluginManager().registerEvents(this.supportHandler, this);
 		loadWorldGuardSupport();
 		loadFactionSupport();
-		// getCommand("RegInv").setExecutor(this);
 	}
 
 	/** Loads listener that deals with Factions plugin support */
@@ -72,6 +74,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 			{
 				logger().info("Factions support loaded");
 				factionsListener = new FactionSupport(this);
+				supportHandler.register(factionsListener);
 				factionsListener.load();
 				getServer().getPluginManager().registerEvents(this.factionsListener, this);
 			}
@@ -95,6 +98,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 				{
 					logger().info("WorldGuard support loaded");
 					worldGuardListener = new WorldGuardSupport(this);
+					supportHandler.register(worldGuardListener);
 					worldGuardListener.load();
 					getServer().getPluginManager().registerEvents(this.worldGuardListener, this);
 				}

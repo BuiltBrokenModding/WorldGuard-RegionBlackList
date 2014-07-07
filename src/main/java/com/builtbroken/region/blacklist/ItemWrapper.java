@@ -1,13 +1,16 @@
 package com.builtbroken.region.blacklist;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class ItemWrapper
+public class ItemWrapper implements Serializable
 {
+	private static final long serialVersionUID = -7377066421221980936L;
+	
 	int slot = 0;
 	ItemStack stack = null;
 
