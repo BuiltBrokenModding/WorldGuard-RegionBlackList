@@ -44,7 +44,7 @@ public class ItemData
 	{
 		if(stack != null)
 		{
-			return stack.getTypeId() == stack().getTypeId() && (allMeta() || stack.getItemMeta() == stack().getItemMeta());
+			return stack.getTypeId() == stack().getTypeId() && (allMeta() || stack.getDurability() == stack().getDurability());
 		}
 		return false;
 	}

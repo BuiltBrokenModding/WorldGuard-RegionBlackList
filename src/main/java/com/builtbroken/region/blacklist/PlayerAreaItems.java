@@ -47,6 +47,11 @@ public abstract class PlayerAreaItems implements Serializable
 	/** Data used to restrict the items in the player's armor set */
 	public abstract ItemList getArmorData();
 
+	public void debug(int type, String msg)
+	{
+		System.out.println("PlayerAreaItems: " + msg);
+	}
+
 	/** Removes all banned items from the player */
 	public boolean removeItems(String user)
 	{
@@ -67,12 +72,14 @@ public abstract class PlayerAreaItems implements Serializable
 		// Take items from player's inventory
 		if (!player.hasPermission("reginv.inventory.keep"))
 		{
+			debug(0, "Removing Items");
 			if (removeItems(player, getInventoryData(), true))
 				taken_flag = true;
 		}
 		// Take items from player's armor slots
 		if (!player.hasPermission("reginv.armor.keep"))
 		{
+			debug(0, "Removing Armor");
 			if (removeArmor(player, getArmorData()))
 				taken_flag = true;
 		}
@@ -94,11 +101,9 @@ public abstract class PlayerAreaItems implements Serializable
 		boolean taken_flag = false;
 		if (list != null && !list.isEmpty())
 		{
-			for (ItemData data : list)
-			{
-				if (removeItems(player, data, list.denyItems(), logSlot))
-					taken_flag = true;
-			}
+			HashMap<Integer, List<Integer>> dataList = list.toMap();
+			if (removeItems(player, dataList, list.denyItems(), logSlot))
+				taken_flag = true;
 		}
 		return taken_flag;
 	}
@@ -112,7 +117,7 @@ public abstract class PlayerAreaItems implements Serializable
 	 * allow only list
 	 * @return true if any items were removed
 	 */
-	public boolean removeItems(Player player, ItemData data, boolean denyList, boolean logSlot)
+	public boolean removeItems(Player player, HashMap<Integer, List<Integer>> data, boolean denyList, boolean logSlot)
 	{
 		boolean taken_flag = false;
 		for (int slot = 0; slot < player.getInventory().getContents().length; slot++)
@@ -120,13 +125,17 @@ public abstract class PlayerAreaItems implements Serializable
 			ItemStack stack = player.getInventory().getContents()[slot];
 			if (stack != null)
 			{
-				boolean match = data.isMatch(stack);
+				debug(0, "\t\tStack: " + stack + "  Slot: " + slot);
+				boolean id_flag = data.containsKey(stack.getType());
+				boolean meta_flag = id_flag && data.get(stack.getType()) != null ? data.get(stack.getType()).contains(-1) || data.get(stack.getType()).contains(stack.getDurability()) : false;
+				boolean match = id_flag && meta_flag;
 				int slotPlace = logSlot ? slot : -1;
 				if (match)
 				{
+					debug(0, "\t\tMatches");
 					if (denyList)
 					{
-						
+						debug(0, "\t\tDenying Item");
 						this.inventory.add(new ItemWrapper(stack, slotPlace));
 						player.getInventory().setItem(slot, null);
 						taken_flag = true;
@@ -134,6 +143,7 @@ public abstract class PlayerAreaItems implements Serializable
 				}
 				else if (!denyList)
 				{
+					debug(0, "\t\tDisallowing Item");
 					this.inventory.add(new ItemWrapper(stack, slotPlace));
 					player.getInventory().setItem(slot, null);
 					taken_flag = true;
@@ -181,7 +191,7 @@ public abstract class PlayerAreaItems implements Serializable
 		ItemStack[] armorContent = player.getInventory().getArmorContents();
 		for (int slot = 0; slot < armorContent.length; slot++)
 		{
-			//System.out.println("Armor slot: " + slot + "  item: " + armorContent[slot]);
+			// System.out.println("Armor slot: " + slot + "  item: " + armorContent[slot]);
 			ItemStack stack = armorContent[slot];
 			if (stack != null)
 			{
@@ -189,10 +199,10 @@ public abstract class PlayerAreaItems implements Serializable
 
 				if (match)
 				{
-					//System.out.println("Armor is a match");
+					// System.out.println("Armor is a match");
 					if (denyList)
 					{
-						//System.out.println("Denying armor");
+						// System.out.println("Denying armor");
 						this.armor.add(new ItemWrapper(stack, slot));
 						armorContent[slot] = null;
 						taken_flag = true;
@@ -200,7 +210,7 @@ public abstract class PlayerAreaItems implements Serializable
 				}
 				else if (!denyList)
 				{
-					//System.out.println("Armor not allowed");
+					// System.out.println("Armor not allowed");
 					this.armor.add(new ItemWrapper(stack, slot));
 					armorContent[slot] = null;
 					taken_flag = true;
@@ -224,7 +234,7 @@ public abstract class PlayerAreaItems implements Serializable
 				if (item.returnItem(player))
 				{
 					it.remove();
-				}				
+				}
 			}
 
 			// Return armor items
@@ -236,7 +246,7 @@ public abstract class PlayerAreaItems implements Serializable
 				if (item.returnArmor(player, armorContent))
 				{
 					it.remove();
-				}				
+				}
 			}
 			player.getInventory().setArmorContents(armorContent);
 		}
@@ -252,8 +262,8 @@ public abstract class PlayerAreaItems implements Serializable
 	public boolean isEmpty()
 	{
 		return inventory.isEmpty() && armor.isEmpty();
-	} 
-	
+	}
+
 	@Override
 	public boolean equals(Object object)
 	{
