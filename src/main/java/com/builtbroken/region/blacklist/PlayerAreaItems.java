@@ -1,7 +1,10 @@
 package com.builtbroken.region.blacklist;
 
+import java.io.Externalizable;
 import java.io.IOException;
+import java.io.ObjectInput;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -22,16 +25,14 @@ import org.bukkit.inventory.ItemStack;
  * @author Robert Seifert
  * 
  */
-public abstract class PlayerAreaItems implements Serializable
+public abstract class PlayerAreaItems implements Externalizable
 {
-	private static final long serialVersionUID = 2694201623625810072L;
+	protected String areaName;
 
-	protected final String areaName;
+	protected World world;
 
-	protected final World world;
-
-	protected final List<ItemWrapper> inventory;
-	protected final List<ItemWrapper> armor;
+	protected List<ItemWrapper> inventory;
+	protected List<ItemWrapper> armor;
 
 	public PlayerAreaItems(World world, String name)
 	{
@@ -278,5 +279,23 @@ public abstract class PlayerAreaItems implements Serializable
 	public String getAreaName()
 	{
 		return this.areaName;
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		out.writeUTF(this.areaName);
+		out.writeUTF(world.getName());
+		out.writeObject(this.inventory);
+		out.writeObject(this.armor);
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		this.areaName = in.readUTF();
+		this.world = Bukkit.getWorld(in.readUTF());
+		this.inventory = (List<ItemWrapper>) in.readObject();
+		this.armor = (List<ItemWrapper>) in.readObject();
 	}
 }

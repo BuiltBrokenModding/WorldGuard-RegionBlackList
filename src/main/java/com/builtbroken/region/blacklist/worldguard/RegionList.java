@@ -8,7 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 
-public class RegionList extends LinkedList<RegionItems>
+public class RegionList extends LinkedList<RegionItems> 
 {
 	private static final long serialVersionUID = 3009886584617520185L;
 	String playerName = null;

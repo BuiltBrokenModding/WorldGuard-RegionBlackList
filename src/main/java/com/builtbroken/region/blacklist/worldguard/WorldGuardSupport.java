@@ -221,13 +221,22 @@ public class WorldGuardSupport implements IBlackListRegion
 
 	public void save()
 	{
+		File file = new File(plugin.getDataFolder() + File.separator + "worldguard.save");
+		if (!file.getParentFile().exists() && file.getParentFile().mkdirs())
+		{
+			plugin.logger().severe("Failed to make directories");
+		}
 		try
 		{
-			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(plugin.getDataFolder() + File.separator + "wgData.dat"));
+			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
 			oos.writeObject(this.playerItemsPerRegion);
 			oos.flush();
 			oos.close();
 			// Handle I/O exceptions
+		}
+		catch (NotSerializableException e)
+		{
+			plugin.logger().severe("Failed save an object: " + e.getMessage());
 		}
 		catch (Exception e)
 		{
@@ -238,7 +247,7 @@ public class WorldGuardSupport implements IBlackListRegion
 	@Override
 	public void load()
 	{
-		File file = new File(plugin.getDataFolder() + File.separator + "wgData.dat");
+		File file = new File(plugin.getDataFolder() + File.separator + "worldguard.save");
 		if (file.exists())
 		{
 			try
@@ -249,15 +258,20 @@ public class WorldGuardSupport implements IBlackListRegion
 				{
 					this.playerItemsPerRegion.putAll((HashMap<? extends String, ? extends RegionList>) result);
 				}
+				ois.close();
 			}
 			catch (NotSerializableException e)
 			{
-
+				plugin.logger().severe("Failed load an object: " + e.getMessage());
 			}
 			catch (Exception e)
 			{
 				e.printStackTrace();
 			}
+		}
+		else if (!file.getParentFile().exists() && file.getParentFile().mkdirs())
+		{
+			plugin.logger().severe("Failed to make directories");
 		}
 	}
 
