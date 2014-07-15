@@ -36,23 +36,23 @@ public class ItemList extends ArrayList<ItemData>
 		HashMap<Integer, List<Integer>> map = new HashMap<Integer, List<Integer>>();
 		for (ItemData data : this)
 		{
-			List<Integer> list = null;
-			if (map.containsKey(data.stack().getTypeId()))
-			{
-				list = map.get(data.stack().getTypeId());
-			}
+			List<Integer> meta_list = null;
+			int id = data.stack().getTypeId();
+			short meta = data.stack().getDurability();
+			
+			if (map.containsKey(id))
+				meta_list = map.get(id);
 			else
-			{
-				list = new ArrayList<Integer>();
-			}
-			if (!list.contains(data.stack().getDurability()) && !list.contains(-1))
+				meta_list = new ArrayList<Integer>();
+			
+			if (!meta_list.contains(meta) && !meta_list.contains(-1))
 			{
 				if (!data.allMeta())
-					list.add((int) data.stack().getDurability());
+					meta_list.add((int) meta);
 				else
-					list.add(-1);
-				map.put(data.stack().getTypeId(), list);
+					meta_list.add(-1);				
 			}
+			map.put(id, meta_list);
 		}
 		return map;
 	}

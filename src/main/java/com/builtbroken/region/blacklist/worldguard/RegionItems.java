@@ -19,6 +19,11 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
  */
 public class RegionItems extends PlayerAreaItems
 {
+	public RegionItems()
+	{
+		super();
+	}
+	
 	public RegionItems(World world, String regionName)
 	{
 		super(world, regionName);

@@ -34,6 +34,11 @@ public abstract class PlayerAreaItems implements Externalizable
 	protected List<ItemWrapper> inventory;
 	protected List<ItemWrapper> armor;
 
+	public PlayerAreaItems()
+	{
+		
+	}
+	
 	public PlayerAreaItems(World world, String name)
 	{
 		this.world = world;
@@ -127,10 +132,13 @@ public abstract class PlayerAreaItems implements Externalizable
 			if (stack != null)
 			{
 				debug(0, "\t\tStack: " + stack + "  Slot: " + slot);
-				boolean id_flag = data.containsKey(stack.getType());
-				boolean meta_flag = id_flag && data.get(stack.getType()) != null ? data.get(stack.getType()).contains(-1) || data.get(stack.getType()).contains(stack.getDurability()) : false;
+				int id = stack.getTypeId();
+				short meta = stack.getDurability();
+				boolean id_flag = data.containsKey(id);
+				boolean meta_flag = id_flag && data.get(id) != null ? data.get(id).contains(-1) || data.get(id).contains(meta) : false;
 				boolean match = id_flag && meta_flag;
 				int slotPlace = logSlot ? slot : -1;
+				debug(0, "\t\tID: " + id_flag + " Meta: " + meta_flag);
 				if (match)
 				{
 					debug(0, "\t\tMatches");

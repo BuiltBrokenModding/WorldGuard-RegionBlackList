@@ -1,19 +1,28 @@
 package com.builtbroken.region.blacklist;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class ItemWrapper implements Serializable
-{
-	private static final long serialVersionUID = -7377066421221980936L;
-	
+public class ItemWrapper implements Externalizable
+{	
 	int slot = 0;
 	ItemStack stack = null;
 
+	public ItemWrapper()
+	{
+		
+	}
+	
 	public ItemWrapper(ItemStack stack, int slot)
 	{
 		this.stack = stack;
@@ -88,5 +97,20 @@ public class ItemWrapper implements Serializable
 			}
 		}
 		return getStack();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		slot = in.readInt();
+		stack = ItemStack.deserialize((Map<String, Object>) in.readObject());
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		out.writeInt(slot);
+		out.writeObject(stack.serialize());
 	}
 }
