@@ -1,7 +1,8 @@
-package com.builtbroken.region.blacklist;
+package com.builtbroken.region.api;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
@@ -29,4 +30,10 @@ public interface IBlackListRegion extends Listener
 
 	/** Called to load from a file */
 	public void load();
+	
+	/** Loads config settings */
+	public void loadConfig(YamlConfiguration config);
+	
+	/** Creates config settings */
+	public void createConfig(YamlConfiguration config);
 }

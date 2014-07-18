@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import org.bukkit.Location;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,7 +16,9 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
-public class PlayerEventHandler implements Listener
+import com.builtbroken.region.api.IBlackListRegion;
+
+public class SupportHandler implements Listener
 {
 	private static int CHANGE_IN_DISTANCE = 10;
 	private static int SECONDS_BETWEEN_UPDATES = 10;
@@ -28,7 +31,7 @@ public class PlayerEventHandler implements Listener
 
 	private HashMap<String, IBlackListRegion> regionSupportListeners = new HashMap<String, IBlackListRegion>();
 
-	public PlayerEventHandler(PluginRegionBlacklist plugin)
+	public SupportHandler(PluginRegionBlacklist plugin)
 	{
 		this.plugin = plugin;
 	}
@@ -129,5 +132,26 @@ public class PlayerEventHandler implements Listener
 	public void onPickUpItem(PlayerPickupItemEvent event)
 	{
 		// TODO if item is banned send strait to item cache
+	}
+
+	/** Loads the config from file */
+	public void loadConfig(YamlConfiguration config)
+	{
+		int version = config.getInt("version");
+		if (version == 1 || version == 0)
+		{
+			plugin.enabledMessages = config.getBoolean("messages.enable.all", true);
+			plugin.enabledItemMessages = config.getBoolean("messages.enable.items", true);
+			plugin.enabledWarningMessages = config.getBoolean("messages.enable.warnings", true);
+		}
+	}
+
+	/** Creates the config */
+	public void createConfig(YamlConfiguration config)
+	{
+		// Version 1 config
+		config.set("messages.enable.all", true);
+		config.set("messages.enable.items", true);
+		config.set("messages.enable.warnings", true);
 	}
 }

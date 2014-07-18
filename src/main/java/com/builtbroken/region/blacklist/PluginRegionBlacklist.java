@@ -19,7 +19,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.builtbroken.region.api.IBlackListRegion;
 import com.builtbroken.region.blacklist.factions.FactionSupport;
+import com.builtbroken.region.blacklist.gp.GriefSupport;
 import com.builtbroken.region.blacklist.worldguard.WorldGuardSupport;
 import com.massivecraft.mcore.util.Txt;
 
@@ -34,7 +36,8 @@ public class PluginRegionBlacklist extends JavaPlugin
 {
 	public IBlackListRegion worldGuardListener;
 	public IBlackListRegion factionsListener;
-	public PlayerEventHandler supportHandler;
+	public IBlackListRegion griefPreventionListener;
+	public SupportHandler supportHandler;
 	public Logger logger;
 	public String loggerPrefix = "";
 	public HashMap<String, Boolean> playerOptOutMessages = new LinkedHashMap<String, Boolean>();
@@ -64,12 +67,13 @@ public class PluginRegionBlacklist extends JavaPlugin
 	{
 		loggerPrefix = String.format("[InvReg %s]", this.getDescription().getVersion());
 		logger().info("Enabled!");
-		supportHandler = new PlayerEventHandler(this);
+		supportHandler = new SupportHandler(this);
 		getServer().getPluginManager().registerEvents(this.supportHandler, this);
 
 		// Plugin support loading
 		loadWorldGuardSupport();
 		loadFactionSupport();
+		loadGriefPrevention();
 
 		// Config handling
 		File configFile = new File(References.CONFIG);
@@ -77,12 +81,12 @@ public class PluginRegionBlacklist extends JavaPlugin
 		if (configFile.exists())
 		{
 			config = YamlConfiguration.loadConfiguration(configFile);
-			loadConfig(config);
+			supportHandler.loadConfig(config);
 		}
 		else
 		{
 			config = new YamlConfiguration();
-			createConfig(config);
+			supportHandler.createConfig(config);
 			try
 			{
 				config.save(configFile);
@@ -111,6 +115,27 @@ public class PluginRegionBlacklist extends JavaPlugin
 			else
 			{
 				logger().info("Factions plugin not installed! Skipping Factions support!");
+			}
+		}
+	}
+	
+	/** Loads listener that deals with Factions plugin support */
+	public void loadGriefPrevention()
+	{
+		if (griefPreventionListener == null)
+		{
+			Plugin factions = getServer().getPluginManager().getPlugin("GriefPrevention");
+			if (factions != null)
+			{
+				logger().info("Factions support loaded");
+				griefPreventionListener = new GriefSupport(this);
+				supportHandler.register(griefPreventionListener);
+				griefPreventionListener.load();
+				getServer().getPluginManager().registerEvents(this.griefPreventionListener, this);
+			}
+			else
+			{
+				logger().info("Grief Prevention plugin not installed! Skipping Grief Prevention support!");
 			}
 		}
 	}
@@ -287,24 +312,5 @@ public class PluginRegionBlacklist extends JavaPlugin
 		return false;
 	}
 
-	/** Loads the config from file */
-	public void loadConfig(YamlConfiguration config)
-	{
-		int version = config.getInt("version");
-		if (version == 1 || version == 0)
-		{
-			enabledMessages = config.getBoolean("messages.enable.all", true);
-			enabledItemMessages = config.getBoolean("messages.enable.items", true);
-			enabledWarningMessages = config.getBoolean("messages.enable.warnings", true);
-		}
-	}
-
-	/** Creates the config */
-	public void createConfig(YamlConfiguration config)
-	{
-		//Version 1 config
-		config.set("messages.enable.all", true);
-		config.set("messages.enable.items", true);
-		config.set("messages.enable.warnings", true);
-	}
+	
 }

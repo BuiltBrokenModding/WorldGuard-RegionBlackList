@@ -1,4 +1,4 @@
-package com.builtbroken.region.blacklist.factions;
+package com.builtbroken.region.blacklist.gp;
 
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -11,16 +11,16 @@ import com.builtbroken.region.blacklist.PluginRegionBlacklist;
 import com.builtbroken.region.blacklist.PluginSupport;
 
 /**
- * Faction support handling
+ * Grief Prevention support handling
  * 
  * @author Robert Seifert
  * 
  */
-public class FactionSupport extends PluginSupport
+public class GriefSupport extends PluginSupport
 {
-	public FactionSupport(PluginRegionBlacklist plugin)
+	public GriefSupport(PluginRegionBlacklist plugin)
 	{
-		super(plugin, "Factions");
+		super(plugin, "GriefProtection");
 	}
 
 	@Override

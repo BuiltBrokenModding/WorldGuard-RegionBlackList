@@ -30,9 +30,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 
-import com.builtbroken.region.blacklist.IBlackListRegion;
+import com.builtbroken.region.api.IBlackListRegion;
 import com.builtbroken.region.blacklist.ItemData;
 import com.builtbroken.region.blacklist.PluginRegionBlacklist;
+import com.builtbroken.region.blacklist.PluginSupport;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -42,7 +43,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
  * @author Robert Seifert
  * 
  */
-public class WorldGuardSupport implements IBlackListRegion
+public class WorldGuardSupport extends PluginSupport
 {
 	public static final ItemFlag ALLOW_ITEM_FLAG = new ItemFlag("allow-items");
 	public static final ItemFlag DENY_ITEM_FLAG = new ItemFlag("deny-items");
@@ -54,7 +55,7 @@ public class WorldGuardSupport implements IBlackListRegion
 
 	public WorldGuardSupport(PluginRegionBlacklist plugin)
 	{
-		this.plugin = plugin;
+		super(plugin, "WorldGuard");
 		WGUtility.customFlags().addCustomFlag(ALLOW_ITEM_FLAG);
 		WGUtility.customFlags().addCustomFlag(DENY_ITEM_FLAG);
 		WGUtility.customFlags().addCustomFlag(ALLOW_ARMOR_FLAG);
@@ -111,7 +112,7 @@ public class WorldGuardSupport implements IBlackListRegion
 
 			if (plugin.enabledMessages & plugin.enabledItemMessages)
 			{
-				if(player.hasPermission("reginv.messages"))
+				if (player.hasPermission("reginv.messages"))
 				{
 					if (!plugin.playerOptOutMessages.containsKey(player.getName()) || !plugin.playerOptOutMessages.get(player.getName()))
 					{
@@ -225,65 +226,21 @@ public class WorldGuardSupport implements IBlackListRegion
 		return false;
 	}
 
-	public void save()
-	{
-		File file = new File(plugin.getDataFolder() + File.separator + "worldguard.save");
-		if (!file.getParentFile().exists() && file.getParentFile().mkdirs())
-		{
-			plugin.logger().severe("Failed to make directories");
-		}
-		try
-		{
-			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
-			oos.writeObject(this.playerItemsPerRegion);
-			oos.flush();
-			oos.close();
-			// Handle I/O exceptions
-		}
-		catch (NotSerializableException e)
-		{
-			plugin.logger().severe("Failed save an object: " + e.getMessage());
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-
 	@Override
-	public void load()
+	public void save(FileOutputStream stream) throws Exception
 	{
-		File file = new File(plugin.getDataFolder() + File.separator + "worldguard.save");
-		if (file.exists())
-		{
-			try
-			{
-				ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-				Object result = ois.readObject();
-				if (result instanceof HashMap)
-				{
-					this.playerItemsPerRegion.putAll((HashMap<? extends String, ? extends RegionList>) result);
-				}
-				ois.close();
-			}
-			catch (NotSerializableException e)
-			{
-				plugin.logger().severe("Failed load an object: " + e.getMessage());
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-		}
-		else if (!file.getParentFile().exists() && file.getParentFile().mkdirs())
-		{
-			plugin.logger().severe("Failed to make directories");
-		}
+		ObjectOutputStream oos = new ObjectOutputStream(stream);
+		oos.writeObject(this.playerItemsPerRegion);
 	}
-
+	
 	@Override
-	public String getName()
+	public void load(FileInputStream stream) throws Exception
 	{
-		return "WorldGuard";
+		ObjectInputStream ois = new ObjectInputStream(stream);
+		Object result = ois.readObject();
+		if (result instanceof HashMap)
+		{
+			this.playerItemsPerRegion.putAll((HashMap<? extends String, ? extends RegionList>) result);
+		}
 	}
 }
