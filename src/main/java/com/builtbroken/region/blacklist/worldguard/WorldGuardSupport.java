@@ -109,15 +109,21 @@ public class WorldGuardSupport implements IBlackListRegion
 			if (regions != null && !regions.isEmpty())
 				this.playerItemsPerRegion.put(player.getName(), regions);
 
-			if (!plugin.playerOptOutMessages.containsKey(player.getName()) || !plugin.playerOptOutMessages.get(player.getName()))
+			if (plugin.enabledMessages & plugin.enabledItemMessages)
 			{
-				if (itemsReturned)
+				if(player.hasPermission("reginv.messages"))
 				{
-					player.sendMessage("Items were returned to your inventory!");
-				}
-				if (itemsRemoved)
-				{
-					player.sendMessage("Items were removed from your inventory! They will be returned when you leave this region.");
+					if (!plugin.playerOptOutMessages.containsKey(player.getName()) || !plugin.playerOptOutMessages.get(player.getName()))
+					{
+						if (itemsReturned)
+						{
+							player.sendMessage("Items were returned to your inventory!");
+						}
+						if (itemsRemoved)
+						{
+							player.sendMessage("Items were removed from your inventory! They will be returned when you leave this region.");
+						}
+					}
 				}
 			}
 		}
