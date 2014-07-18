@@ -1,12 +1,18 @@
 package com.builtbroken.region.blacklist;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import me.ryanhamshire.GriefPrevention.DataStore;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -26,12 +32,16 @@ import com.massivecraft.mcore.util.Txt;
  */
 public class PluginRegionBlacklist extends JavaPlugin
 {
-	IBlackListRegion worldGuardListener;
-	IBlackListRegion factionsListener;
-	PlayerEventHandler supportHandler;
-	Logger logger;
-	String loggerPrefix = "";
+	public IBlackListRegion worldGuardListener;
+	public IBlackListRegion factionsListener;
+	public PlayerEventHandler supportHandler;
+	public Logger logger;
+	public String loggerPrefix = "";
 	public HashMap<String, Boolean> playerOptOutMessages = new LinkedHashMap<String, Boolean>();
+
+	public boolean enabledMessages = true;
+	public boolean enabledItemMessages = true;
+	public boolean enabledWarningMessages = true;
 
 	/*
 	 * TODO - list of stuff to still do
@@ -42,11 +52,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 	 * 
 	 * Add: Global item ban list
 	 * 
-	 * Add: Settings config
-	 * 
 	 * Add: Chat command to change settings
-	 * 
-	 * Add: Item save/load to prevent item loss
 	 * 
 	 * Add: Events for later use and common support
 	 * 
@@ -60,8 +66,32 @@ public class PluginRegionBlacklist extends JavaPlugin
 		logger().info("Enabled!");
 		supportHandler = new PlayerEventHandler(this);
 		getServer().getPluginManager().registerEvents(this.supportHandler, this);
+
+		// Plugin support loading
 		loadWorldGuardSupport();
 		loadFactionSupport();
+
+		// Config handling
+		File configFile = new File(References.CONFIG);
+		YamlConfiguration config = null;
+		if (configFile.exists())
+		{
+			config = YamlConfiguration.loadConfiguration(configFile);
+			loadConfig(config);
+		}
+		else
+		{
+			config = new YamlConfiguration();
+			createConfig(config);
+			try
+			{
+				config.save(configFile);
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/** Loads listener that deals with Factions plugin support */
@@ -255,5 +285,26 @@ public class PluginRegionBlacklist extends JavaPlugin
 			return true;
 		}
 		return false;
+	}
+
+	/** Loads the config from file */
+	public void loadConfig(YamlConfiguration config)
+	{
+		int version = config.getInt("version");
+		if (version == 1 || version == 0)
+		{
+			enabledMessages = config.getBoolean("messages.enable.all", true);
+			enabledItemMessages = config.getBoolean("messages.enable.items", true);
+			enabledWarningMessages = config.getBoolean("messages.enable.warnings", true);
+		}
+	}
+
+	/** Creates the config */
+	public void createConfig(YamlConfiguration config)
+	{
+		//Version 1 config
+		config.set("messages.enable.all", true);
+		config.set("messages.enable.items", true);
+		config.set("messages.enable.warnings", true);
 	}
 }
