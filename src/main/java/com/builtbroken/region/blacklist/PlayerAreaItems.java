@@ -55,7 +55,7 @@ public abstract class PlayerAreaItems implements Externalizable
 
 	public void debug(int type, String msg)
 	{
-		System.out.println("PlayerAreaItems: " + msg);
+		//System.out.println("PlayerAreaItems: " + msg);
 	}
 
 	/** Removes all banned items from the player */
