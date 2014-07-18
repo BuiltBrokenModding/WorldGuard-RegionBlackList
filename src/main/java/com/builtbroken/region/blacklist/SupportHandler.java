@@ -144,6 +144,9 @@ public class SupportHandler implements Listener
 			plugin.enabledItemMessages = config.getBoolean("messages.enable.items", true);
 			plugin.enabledWarningMessages = config.getBoolean("messages.enable.warnings", true);
 		}
+
+		for (IBlackListRegion support : regionSupportListeners.values())
+			support.loadConfig(config);
 	}
 
 	/** Creates the config */
@@ -153,5 +156,20 @@ public class SupportHandler implements Listener
 		config.set("messages.enable.all", true);
 		config.set("messages.enable.items", true);
 		config.set("messages.enable.warnings", true);
+
+		for (IBlackListRegion support : regionSupportListeners.values())
+			support.createConfig(config);
+	}
+
+	public void save()
+	{
+		for (IBlackListRegion support : regionSupportListeners.values())
+			support.save();
+	}
+
+	public void load()
+	{
+		for (IBlackListRegion support : regionSupportListeners.values())
+			support.load();
 	}
 }

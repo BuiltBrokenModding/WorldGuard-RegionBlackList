@@ -56,10 +56,6 @@ public class PluginRegionBlacklist extends JavaPlugin
 	 * Add: Global item ban list
 	 * 
 	 * Add: Chat command to change settings
-	 * 
-	 * Add: Events for later use and common support
-	 * 
-	 * Add: Chest GUI to show items that were removed from the player
 	 */
 
 	@Override
@@ -74,6 +70,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 		loadWorldGuardSupport();
 		loadFactionSupport();
 		loadGriefPrevention();
+		supportHandler.load();
 
 		// Config handling
 		File configFile = new File(References.CONFIG);
@@ -109,7 +106,6 @@ public class PluginRegionBlacklist extends JavaPlugin
 				logger().info("Factions support loaded");
 				factionsListener = new FactionSupport(this);
 				supportHandler.register(factionsListener);
-				factionsListener.load();
 				getServer().getPluginManager().registerEvents(this.factionsListener, this);
 			}
 			else
@@ -130,7 +126,6 @@ public class PluginRegionBlacklist extends JavaPlugin
 				logger().info("Factions support loaded");
 				griefPreventionListener = new GriefSupport(this);
 				supportHandler.register(griefPreventionListener);
-				griefPreventionListener.load();
 				getServer().getPluginManager().registerEvents(this.griefPreventionListener, this);
 			}
 			else
@@ -154,7 +149,6 @@ public class PluginRegionBlacklist extends JavaPlugin
 					logger().info("WorldGuard support loaded");
 					worldGuardListener = new WorldGuardSupport(this);
 					supportHandler.register(worldGuardListener);
-					worldGuardListener.load();
 					getServer().getPluginManager().registerEvents(this.worldGuardListener, this);
 				}
 				else
@@ -173,10 +167,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 	public void onDisable()
 	{
 		logger().info("Disabled!");
-		if (worldGuardListener != null)
-			worldGuardListener.save();
-		if (factionsListener != null)
-			factionsListener.save();
+		supportHandler.save();
 	}
 
 	/** Logger used by the plugin, mainly just prefixes everything with the name */
