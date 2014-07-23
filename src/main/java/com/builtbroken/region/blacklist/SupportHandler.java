@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
@@ -35,12 +36,12 @@ public class SupportHandler implements Listener
 
 	private HashMap<String, PluginSupport> regionSupportListeners = new HashMap<String, PluginSupport>();
 
-	List<ItemData> rightClickBlock = null;
-	List<ItemData> leftClickBlock = null;
-	List<ItemData> rightClickAir = null;
-	List<ItemData> leftClickAir = null;
-	List<ItemData> globalBannedItems = null;
-	List<ItemData> globalBannedArmors = null;
+	ItemList rightClickBlock = null;
+	ItemList leftClickBlock = null;
+	ItemList rightClickAir = null;
+	ItemList leftClickAir = null;
+	ItemList globalBannedItems = null;
+	ItemList globalBannedArmors = null;
 
 	public SupportHandler(PluginRegionBlacklist plugin)
 	{
@@ -142,7 +143,13 @@ public class SupportHandler implements Listener
 	// @EventHandler
 	public void onPickUpItem(PlayerPickupItemEvent event)
 	{
-		// TODO if item is banned send strait to item cache
+		Item item = event.getItem();
+		ItemStack stack = item.getItemStack();
+		if(this.globalBannedItems.contains(stack) || this.globalBannedArmors.contains(stack))
+		{
+			event.setCancelled(true);
+			item.remove();
+		}
 	}
 
 	@EventHandler
@@ -254,11 +261,11 @@ public class SupportHandler implements Listener
 	}
 
 	/** Loads a string that contains item ids and meta */
-	public static List<ItemData> loadItemString(String arg0)
+	public static ItemList loadItemString(String arg0)
 	{
 		try
 		{
-			List<ItemData> itemList = new ArrayList<ItemData>();
+			ItemList itemList = new ItemList();
 			String newString = arg0.replace(" ", "");
 			String[] stacks = newString.split(",");
 			for (String stack : stacks)
@@ -292,7 +299,7 @@ public class SupportHandler implements Listener
 		catch (Exception e)
 		{
 			e.printStackTrace();
-			return new ArrayList<ItemData>();
+			return new ItemList();
 		}
 
 	}

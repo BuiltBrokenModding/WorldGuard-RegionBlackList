@@ -36,7 +36,6 @@ public class WorldGuardSupport extends PluginSupport
 	public static final ItemFlag ALLOW_ARMOR_FLAG = new ItemFlag("allow-armor");
 	public static final ItemFlag DENY_ARMOR_FLAG = new ItemFlag("deny-armor");
 
-	private PluginRegionBlacklist plugin = null;
 	private HashMap<String, RegionList> playerItemsPerRegion = new LinkedHashMap<String, RegionList>();
 
 	public WorldGuardSupport(PluginRegionBlacklist plugin)
