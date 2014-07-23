@@ -9,13 +9,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.Action;
+import org.bukkit.inventory.ItemStack;
 
 import com.builtbroken.region.blacklist.ItemData;
 import com.builtbroken.region.blacklist.PluginRegionBlacklist;
 import com.builtbroken.region.blacklist.PluginSupport;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 /**
@@ -41,6 +46,20 @@ public class WorldGuardSupport extends PluginSupport
 		WGUtility.customFlags().addCustomFlag(DENY_ITEM_FLAG);
 		WGUtility.customFlags().addCustomFlag(ALLOW_ARMOR_FLAG);
 		WGUtility.customFlags().addCustomFlag(DENY_ARMOR_FLAG);
+	}
+
+	@Override
+	public boolean canUse(Player player, ItemStack stack, Block clickedBlock, Action action)
+	{
+		LocalPlayer lplayer = WGUtility.getPlayer(player);
+		Location loc = clickedBlock.getLocation();
+		ApplicableRegionSet set = WGUtility.getRegions(clickedBlock.getWorld(), new Vector(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+
+		if (action == Action.RIGHT_CLICK_BLOCK)
+		{
+			return set.canConstruct(lplayer);
+		}
+		return true;
 	}
 
 	/** Updated item data for player */
@@ -91,7 +110,7 @@ public class WorldGuardSupport extends PluginSupport
 			if (regions != null && !regions.isEmpty())
 				this.playerItemsPerRegion.put(player.getName(), regions);
 
-			if (plugin.enabledMessages & plugin.enabledItemMessages)
+			if (plugin.enabledMessages && plugin.enabledItemMessages)
 			{
 				if (player.hasPermission("reginv.messages"))
 				{
@@ -213,7 +232,7 @@ public class WorldGuardSupport extends PluginSupport
 		ObjectOutputStream oos = new ObjectOutputStream(stream);
 		oos.writeObject(this.playerItemsPerRegion);
 	}
-	
+
 	@Override
 	public void load(FileInputStream stream) throws Exception
 	{

@@ -7,23 +7,16 @@ import java.util.LinkedHashMap;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import me.ryanhamshire.GriefPrevention.DataStore;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.builtbroken.region.api.IBlackListRegion;
 import com.builtbroken.region.blacklist.factions.FactionSupport;
 import com.builtbroken.region.blacklist.gp.GriefSupport;
 import com.builtbroken.region.blacklist.worldguard.WorldGuardSupport;
-import com.massivecraft.mcore.util.Txt;
 
 /**
  * Bukkit plugin to work with worldguard to take as a user enters a region. Then give them back
@@ -34,9 +27,9 @@ import com.massivecraft.mcore.util.Txt;
  */
 public class PluginRegionBlacklist extends JavaPlugin
 {
-	public IBlackListRegion worldGuardListener;
-	public IBlackListRegion factionsListener;
-	public IBlackListRegion griefPreventionListener;
+	public PluginSupport worldGuardListener;
+	public PluginSupport factionsListener;
+	public PluginSupport griefPreventionListener;
 	public SupportHandler supportHandler;
 	public Logger logger;
 	public String loggerPrefix = "";
@@ -45,6 +38,13 @@ public class PluginRegionBlacklist extends JavaPlugin
 	public boolean enabledMessages = true;
 	public boolean enabledItemMessages = true;
 	public boolean enabledWarningMessages = true;
+	
+	public String messageItemTakeTemp = "";
+	public String messageItemTakeReturn = "";
+	public String messageItemTakeBan = "";
+	public String messageArmorTakeTemp = "";
+	public String messageArmorTakeBan = "";
+	public String messageArmorTakeReturn = "";
 
 	/*
 	 * TODO - list of stuff to still do

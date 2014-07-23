@@ -1,22 +1,26 @@
 package com.builtbroken.region.blacklist;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-
-import com.builtbroken.region.api.IBlackListRegion;
+import org.bukkit.inventory.ItemStack;
 
 public class SupportHandler implements Listener
 {
@@ -29,7 +33,14 @@ public class SupportHandler implements Listener
 	private HashMap<String, Location> lastPlayerUpdateLocation = new LinkedHashMap<String, Location>();
 	private HashMap<String, Long> lastPlayerUpateTime = new LinkedHashMap<String, Long>();
 
-	private HashMap<String, IBlackListRegion> regionSupportListeners = new HashMap<String, IBlackListRegion>();
+	private HashMap<String, PluginSupport> regionSupportListeners = new HashMap<String, PluginSupport>();
+
+	List<ItemData> rightClickBlock = null;
+	List<ItemData> leftClickBlock = null;
+	List<ItemData> rightClickAir = null;
+	List<ItemData> leftClickAir = null;
+	List<ItemData> globalBannedItems = null;
+	List<ItemData> globalBannedArmors = null;
 
 	public SupportHandler(PluginRegionBlacklist plugin)
 	{
@@ -37,7 +48,7 @@ public class SupportHandler implements Listener
 	}
 
 	/** Registers a new support class */
-	public void register(IBlackListRegion support)
+	public void register(PluginSupport support)
 	{
 		String name = support.getName();
 		if (!regionSupportListeners.containsKey(name))
@@ -60,7 +71,7 @@ public class SupportHandler implements Listener
 			{
 				this.lastPlayerUpdateLocation.put(player.getName(), loc.clone());
 				this.lastPlayerUpateTime.put(player.getName(), System.currentTimeMillis());
-				for (IBlackListRegion support : regionSupportListeners.values())
+				for (PluginSupport support : regionSupportListeners.values())
 					support.update(player, loc);
 			}
 		}
@@ -69,7 +80,7 @@ public class SupportHandler implements Listener
 	/** Asks each supporting class to unload the player */
 	public void unload(Player player)
 	{
-		for (IBlackListRegion support : regionSupportListeners.values())
+		for (PluginSupport support : regionSupportListeners.values())
 			support.unload(player);
 	}
 
@@ -134,18 +145,71 @@ public class SupportHandler implements Listener
 		// TODO if item is banned send strait to item cache
 	}
 
+	@EventHandler
+	public void onInteraction(PlayerInteractEvent event)
+	{
+		for (PluginSupport support : regionSupportListeners.values())
+		{
+			if (!support.canUse(event.getPlayer(), event.getItem(), event.getClickedBlock(), event.getAction()))
+			{
+				event.setUseInteractedBlock(Result.DENY);
+				event.setCancelled(true);
+				return;
+			}
+		}
+	}
+
 	/** Loads the config from file */
 	public void loadConfig(YamlConfiguration config)
 	{
 		int version = config.getInt("version");
 		if (version == 1 || version == 0)
 		{
-			plugin.enabledMessages = config.getBoolean("messages.enable.all", true);
-			plugin.enabledItemMessages = config.getBoolean("messages.enable.items", true);
-			plugin.enabledWarningMessages = config.getBoolean("messages.enable.warnings", true);
+			plugin.enabledMessages = config.getBoolean("messages.enable", true);
+
+			plugin.enabledItemMessages = config.getBoolean("messages.items.enable", true);
+			plugin.messageItemTakeTemp = config.getString("messages.items.temp.take", "Some items were temp removed");
+			plugin.messageItemTakeReturn = config.getString("messages.items.temp.return", "Your items were returned");
+			plugin.messageItemTakeBan = config.getString("messages.items.ban", "Some items was permanently remove");
+
+			plugin.enabledWarningMessages = config.getBoolean("messages.armor.enable", true);
+			plugin.messageArmorTakeTemp = config.getString("messages.armor.temp.take", "Armor your wearing was temp remove");
+			plugin.messageArmorTakeReturn = config.getString("messages.armor.temp.return", "Your armor was returned");
+			plugin.messageArmorTakeBan = config.getString("messages.armor.ban", "Armor your wearing was permanently remove");
+
+			String rightClickBlock = config.getString("protection.edit.rightclick.block", "");
+			String leftClickBlock = config.getString("protection.edit.leftclick.block", "");
+			String rightClickAir = config.getString("protection.edit.rightclick.air", "");
+			String leftClickAir = config.getString("protection.edit.leftclick.air", "");
+			String bannedItems = config.getString("inventory.global.items.ban", "");
+			String bannedArmors = config.getString("inventory.global.armors.ban", "");
+			if (!rightClickBlock.contains("Replace:"))
+			{
+				this.rightClickBlock = loadItemString(rightClickBlock);
+			}
+			if (!leftClickBlock.contains("Replace:"))
+			{
+				this.leftClickBlock = loadItemString(leftClickBlock);
+			}
+			if (!rightClickAir.contains("Replace:"))
+			{
+				this.rightClickAir = loadItemString(rightClickAir);
+			}
+			if (!leftClickAir.contains("Replace:"))
+			{
+				this.leftClickAir = loadItemString(leftClickAir);
+			}
+			if (!bannedItems.contains("Replace:"))
+			{
+				this.globalBannedItems = loadItemString(bannedItems);
+			}
+			if (!bannedArmors.contains("Replace:"))
+			{
+				this.globalBannedArmors = loadItemString(bannedArmors);
+			}
 		}
 
-		for (IBlackListRegion support : regionSupportListeners.values())
+		for (PluginSupport support : regionSupportListeners.values())
 			support.loadConfig(config);
 	}
 
@@ -153,23 +217,83 @@ public class SupportHandler implements Listener
 	public void createConfig(YamlConfiguration config)
 	{
 		// Version 1 config
-		config.set("messages.enable.all", true);
-		config.set("messages.enable.items", true);
-		config.set("messages.enable.warnings", true);
+		config.set("messages.enable", true);
 
-		for (IBlackListRegion support : regionSupportListeners.values())
+		config.set("messages.items.enable", true);
+		config.set("messages.items.temp.take", "Some items were temp removed");
+		config.set("messages.items.temp.return", "Your items were returned");
+		config.set("messages.items.ban", "Some items was permanently removed");
+
+		config.set("messages.armor.enable", true);
+		config.set("messages.armor.temp.take", "Armor your wearing was temp removed");
+		config.set("messages.armor.temp.return", "Your armor was returned");
+		config.set("messages.armor.ban", "Armor your wearing was permanently removed");
+
+		config.set("protection.edit.rightclick.block", "Replace: Add items that can grief when right clicking a block");
+		config.set("protection.edit.rightclick.air", "Replace: Add items that can grief when right clicking in the air");
+		config.set("protection.edit.leftclick.block", "Replace: Add items that can grief when left clicking a block");
+		config.set("protection.edit.lefttclick.air", "Replace: Add items that can grief when left click in the air");
+
+		config.set("inventory.global.items.ban", "Replace: Items that are always banned");
+		config.set("inventory.global.armors.ban", "Replace: Armors that are always banned");
+
+		for (PluginSupport support : regionSupportListeners.values())
 			support.createConfig(config);
 	}
 
 	public void save()
 	{
-		for (IBlackListRegion support : regionSupportListeners.values())
+		for (PluginSupport support : regionSupportListeners.values())
 			support.save();
 	}
 
 	public void load()
 	{
-		for (IBlackListRegion support : regionSupportListeners.values())
+		for (PluginSupport support : regionSupportListeners.values())
 			support.load();
+	}
+
+	/** Loads a string that contains item ids and meta */
+	public static List<ItemData> loadItemString(String arg0)
+	{
+		try
+		{
+			List<ItemData> itemList = new ArrayList<ItemData>();
+			String newString = arg0.replace(" ", "");
+			String[] stacks = newString.split(",");
+			for (String stack : stacks)
+			{
+				if (stack != null && !stack.isEmpty() && !stack.equalsIgnoreCase(""))
+				{
+					String[] data = stack.split(":");
+					int id = Integer.parseInt(data[0]);
+					int meta = -1;
+					boolean allMeta = false;
+					if (data.length > 1)
+					{
+						if (data[1].equalsIgnoreCase("all"))
+						{
+							allMeta = true;
+						}
+						else if (data[1] != null && !data[1].isEmpty() && !data[1].equalsIgnoreCase(""))
+						{
+							meta = Integer.parseInt(data[1]);
+						}
+					}
+					if (meta == -1)
+					{
+						allMeta = true;
+					}
+					itemList.add(new ItemData(new ItemStack(id, 1, (short) meta), allMeta));
+				}
+			}
+			return itemList;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return new ArrayList<ItemData>();
+		}
+
 	}
 }

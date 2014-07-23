@@ -6,10 +6,12 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import com.mewin.WGCustomFlags.WGCustomFlagsPlugin;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.GlobalRegionManager;
@@ -41,6 +43,11 @@ public class WGUtility
 			}
 		}
 		return worldGuard;
+	}
+	
+	protected static LocalPlayer getPlayer(Player player)
+	{
+		return worldGuard.wrapPlayer(player);
 	}
 
 	/** Gets the custom flags plugin currently loaded */

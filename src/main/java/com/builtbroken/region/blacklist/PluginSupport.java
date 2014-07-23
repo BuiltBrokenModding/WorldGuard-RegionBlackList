@@ -3,17 +3,19 @@ package com.builtbroken.region.blacklist;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.NotSerializableException;
-import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.inventory.ItemStack;
 
-import com.builtbroken.region.api.IBlackListRegion;
-
-public class PluginSupport implements IBlackListRegion
+public class PluginSupport implements Listener
 {
 	private String name;
 	protected PluginRegionBlacklist plugin = null;
@@ -29,34 +31,34 @@ public class PluginSupport implements IBlackListRegion
 		this.name = name;
 	}
 
-	@Override
 	public String getName()
 	{
 		return name;
 	}
 
-	@Override
 	public void update(Player player, Location location)
 	{
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
+	public boolean canUse(Player player, ItemStack stack, Block clickedBlock, Action action)
+	{
+		return true;
+	}
+
 	public void unload(Player player)
 	{
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public boolean onCommand(CommandSender sender, String[] args)
 	{
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	@Override
 	public void save()
 	{
 		File file = new File(plugin.getDataFolder() + File.separator + "worldguard.save");
@@ -86,7 +88,6 @@ public class PluginSupport implements IBlackListRegion
 
 	}
 
-	@Override
 	public void load()
 	{
 		File file = new File(plugin.getDataFolder() + File.separator + getName() + ".save");
@@ -116,18 +117,16 @@ public class PluginSupport implements IBlackListRegion
 
 	}
 
-	@Override
 	public void loadConfig(YamlConfiguration config)
 	{
-		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void createConfig(YamlConfiguration config)
 	{
-		// TODO Auto-generated method stub
-
+		
 	}
+
+
 
 }

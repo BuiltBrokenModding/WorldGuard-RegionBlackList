@@ -1,12 +1,8 @@
 package com.builtbroken.region.blacklist.factions;
 
 import org.bukkit.Location;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 
-import com.builtbroken.region.api.IBlackListRegion;
 import com.builtbroken.region.blacklist.PluginRegionBlacklist;
 import com.builtbroken.region.blacklist.PluginSupport;
 
