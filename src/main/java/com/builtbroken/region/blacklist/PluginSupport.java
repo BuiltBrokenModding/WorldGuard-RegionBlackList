@@ -92,6 +92,13 @@ public class PluginSupport implements Listener
 			}
 			else if (action == Action.RIGHT_CLICK_BLOCK)
 			{
+				if(stackClazz.contains("PowerGuantlet"))
+				{
+					if (!canBuild(player, clickedBlock))
+					{
+						return false;
+					}
+				}
 				if (stackClazz.contains("ItFaSheQi"))
 				{
 					if (!canBuild(player, clickedBlock))
