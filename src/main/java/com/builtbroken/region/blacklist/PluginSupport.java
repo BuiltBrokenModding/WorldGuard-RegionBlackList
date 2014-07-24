@@ -45,12 +45,11 @@ public class PluginSupport implements Listener
 
 	public boolean canUse(Player player, ItemStack stack, Block clickedBlock, Action action)
 	{
-		if(stack != null)
-		{
-			MaterialData item = stack.getData();
-			System.out.println("ItemStack:ID " + stack.getTypeId() +"  Meta: " + stack.getDurability());
-			System.out.println("Class: " + SupportHandler.getItemClass(stack));
-		}
+		if (stack == null)
+			return true;
+
+		String stackClazz = SupportHandler.getItemClass(stack);
+
 		try
 		{
 			if ((clickedBlock == null) || (clickedBlock.getType() == Material.SNOW))
@@ -64,7 +63,7 @@ public class PluginSupport implements Listener
 		}
 		catch (Exception e)
 		{
-			//Didn't hit anything so safe?
+			// Didn't hit anything so safe?
 			return true;
 		}
 		if (clickedBlock != null)
@@ -73,17 +72,51 @@ public class PluginSupport implements Listener
 			{
 				return canBuild(player, clickedBlock);
 			}
-			else if (action == Action.RIGHT_CLICK_AIR && plugin.supportHandler.rightClickAir.contains(stack))
+			else if (action == Action.RIGHT_CLICK_AIR)
 			{
-				return canBuild(player, clickedBlock);
+				if (stackClazz.contains("ItFaSheQi"))
+				{
+					if (!canBuild(player, clickedBlock))
+					{
+						return false;
+					}
+				}
+				if (plugin.supportHandler.rightClickAir.contains(stack))
+				{
+					return canBuild(player, clickedBlock);
+				}
 			}
 			if (action == Action.LEFT_CLICK_BLOCK && plugin.supportHandler.leftClickBlock.contains(stack))
 			{
 				return canBuild(player, clickedBlock);
 			}
-			else if (action == Action.RIGHT_CLICK_BLOCK && plugin.supportHandler.rightClickBlock.contains(stack))
+			else if (action == Action.RIGHT_CLICK_BLOCK)
 			{
-				return canBuild(player, clickedBlock);
+				if (stackClazz.contains("ItFaSheQi"))
+				{
+					if (!canBuild(player, clickedBlock))
+					{
+						return false;
+					}
+				}
+				if (stackClazz.contains("Hoe") || stackClazz.contains("Wrench"))
+				{
+					if (!canBuild(player, clickedBlock))
+					{
+						return false;
+					}
+				}
+				if (stackClazz.contains("ItemMiniumStone") || stackClazz.contains("ItemPhilosophersStone"))
+				{
+					if (!canBuild(player, clickedBlock))
+					{
+						return false;
+					}
+				}
+				if (plugin.supportHandler.rightClickBlock.contains(stack))
+				{
+					return canBuild(player, clickedBlock);
+				}
 			}
 		}
 		return true;

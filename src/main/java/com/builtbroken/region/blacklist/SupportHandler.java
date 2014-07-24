@@ -271,7 +271,6 @@ public class SupportHandler implements Listener
 					if (blocks != null)
 					{
 						Object block = blocks[id];
-						System.out.println("BlockClass: " + block.getClass());
 						return "" + block.getClass();
 					}
 				}
@@ -285,7 +284,6 @@ public class SupportHandler implements Listener
 					if (items != null)
 					{
 						Object item = items[id];
-						System.out.println("ItemClass: " + item.getClass());
 						return "" + item.getClass();
 					}
 				}
