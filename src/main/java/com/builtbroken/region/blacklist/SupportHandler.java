@@ -1,19 +1,15 @@
 package com.builtbroken.region.blacklist;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -259,6 +255,48 @@ public class SupportHandler implements Listener
 	{
 		for (PluginSupport support : regionSupportListeners.values())
 			support.load();
+	}
+
+	public static String getItemClass(ItemStack stack)
+	{
+		int id = stack.getTypeId();
+		try
+		{
+			if (id >= 0 && id < 4096)
+			{
+				Class<?> clazz = Class.forName("net.minecraft.block.Block");
+				if (clazz != null)
+				{
+					Object[] blocks = (Object[]) clazz.getField("field_71973_m").get(clazz);
+					if (blocks != null)
+					{
+						Object block = blocks[id];
+						System.out.println("BlockClass: " + block.getClass());
+						return "" + block.getClass();
+					}
+				}
+			}
+			else if (id >= 4096)
+			{
+				Class<?> clazz = Class.forName("net.minecraft.item.Item");
+				if (clazz != null)
+				{
+					Object[] items = (Object[]) clazz.getField("field_77698_e").get(clazz);
+					if (items != null)
+					{
+						Object item = items[id];
+						System.out.println("ItemClass: " + item.getClass());
+						return "" + item.getClass();
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		return stack.toString();
 	}
 
 	/** Loads a string that contains item ids and meta */

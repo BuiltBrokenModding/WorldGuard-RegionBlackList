@@ -49,7 +49,7 @@ public class PluginSupport implements Listener
 		{
 			MaterialData item = stack.getData();
 			System.out.println("ItemStack:ID " + stack.getTypeId() +"  Meta: " + stack.getDurability());
-			System.out.println("Class: " + item.getClass());
+			System.out.println("Class: " + SupportHandler.getItemClass(stack));
 		}
 		try
 		{
