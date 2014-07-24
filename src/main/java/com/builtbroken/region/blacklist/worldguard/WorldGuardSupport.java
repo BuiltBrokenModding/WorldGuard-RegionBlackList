@@ -12,14 +12,12 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.Action;
-import org.bukkit.inventory.ItemStack;
 
 import com.builtbroken.region.blacklist.ItemData;
 import com.builtbroken.region.blacklist.PluginRegionBlacklist;
 import com.builtbroken.region.blacklist.PluginSupport;
 import com.sk89q.worldedit.Vector;
-import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.bukkit.BukkitUtil;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -48,15 +46,12 @@ public class WorldGuardSupport extends PluginSupport
 	}
 
 	@Override
-	public boolean canUse(Player player, ItemStack stack, Block clickedBlock, Action action)
+	public boolean canBuild(Player player, Block block)
 	{
-		LocalPlayer lplayer = WGUtility.getPlayer(player);
-		Location loc = clickedBlock.getLocation();
-		ApplicableRegionSet set = WGUtility.getRegions(clickedBlock.getWorld(), new Vector(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
-
-		if (action == Action.RIGHT_CLICK_BLOCK)
+		ApplicableRegionSet set = WGUtility.getRegions(block.getWorld(), BukkitUtil.toVector(block));
+		if (set != null)
 		{
-			return set.canConstruct(lplayer);
+			return set.canBuild(WGUtility.getPlayer(player));
 		}
 		return true;
 	}

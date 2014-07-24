@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Item;
@@ -36,12 +37,12 @@ public class SupportHandler implements Listener
 
 	private HashMap<String, PluginSupport> regionSupportListeners = new HashMap<String, PluginSupport>();
 
-	ItemList rightClickBlock = null;
-	ItemList leftClickBlock = null;
-	ItemList rightClickAir = null;
-	ItemList leftClickAir = null;
-	ItemList globalBannedItems = null;
-	ItemList globalBannedArmors = null;
+	public ItemList rightClickBlock = new ItemList();
+	public ItemList leftClickBlock = new ItemList();
+	public ItemList rightClickAir = new ItemList();
+	public ItemList leftClickAir = new ItemList();
+	public ItemList globalBannedItems = new ItemList();
+	public ItemList globalBannedArmors = new ItemList();
 
 	public SupportHandler(PluginRegionBlacklist plugin)
 	{
@@ -145,7 +146,7 @@ public class SupportHandler implements Listener
 	{
 		Item item = event.getItem();
 		ItemStack stack = item.getItemStack();
-		if(this.globalBannedItems.contains(stack) || this.globalBannedArmors.contains(stack))
+		if (this.globalBannedItems.contains(stack) || this.globalBannedArmors.contains(stack))
 		{
 			event.setCancelled(true);
 			item.remove();
@@ -159,7 +160,7 @@ public class SupportHandler implements Listener
 		{
 			if (!support.canUse(event.getPlayer(), event.getItem(), event.getClickedBlock(), event.getAction()))
 			{
-				event.setUseInteractedBlock(Result.DENY);
+				event.getPlayer().sendMessage(new StringBuilder().append(ChatColor.DARK_RED).append("You're not allowed to use that here.").toString());
 				event.setCancelled(true);
 				return;
 			}
