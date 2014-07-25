@@ -76,6 +76,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 		loadWorldGuardSupport();
 		loadFactionSupport();
 		loadGriefPrevention();
+		loadForgeSupport();
 		supportHandler.load();
 
 		// Config handling
@@ -176,6 +177,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 			Class<?> clazz = Class.forName("net.minecraftforge.event.Event");
 			if (clazz != null)
 			{
+				logger().info("Loading Forge Mod support!");
 				Field f = null;
 				Event event = new Event();
 				int id = 0;
@@ -189,16 +191,13 @@ public class PluginRegionBlacklist extends JavaPlugin
 				{
 					logger().fine("Failed to get event bus ID defaulting to zero");
 				}
-				catch (Exception e1)
-				{
-					e1.printStackTrace();
-				}
 				ForgeEventHandler handler = new ForgeEventHandler();
 				event.getListenerList().register(id, EventPriority.NORMAL, handler);
-				
+
 				Class<?> eeclazz = Class.forName("com.pahimar.ee3.core.handlers.WorldTransmutationHandler");
 				if (eeclazz != null)
 				{
+					logger().info("Loading EE Mod support!");
 					handler.handlers.add(new EESupport(this));
 				}
 			}
