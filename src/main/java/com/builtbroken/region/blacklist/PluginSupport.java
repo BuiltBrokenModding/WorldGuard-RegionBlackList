@@ -92,7 +92,7 @@ public class PluginSupport implements Listener
 			}
 			else if (action == Action.RIGHT_CLICK_BLOCK)
 			{
-				if(stackClazz.contains("PowerGuantlet"))
+				if(stackClazz.contains("PowerGauntlet"))
 				{
 					if (!canBuild(player, clickedBlock))
 					{
@@ -107,13 +107,6 @@ public class PluginSupport implements Listener
 					}
 				}
 				if (stackClazz.contains("Hoe") || stackClazz.contains("Wrench"))
-				{
-					if (!canBuild(player, clickedBlock))
-					{
-						return false;
-					}
-				}
-				if (stackClazz.contains("ItemMiniumStone") || stackClazz.contains("ItemPhilosophersStone"))
 				{
 					if (!canBuild(player, clickedBlock))
 					{

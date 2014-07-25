@@ -2,10 +2,15 @@ package com.builtbroken.region.blacklist;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.Event;
+import net.minecraftforge.event.EventPriority;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -16,6 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.builtbroken.region.blacklist.factions.FactionSupport;
 import com.builtbroken.region.blacklist.gp.GriefSupport;
+import com.builtbroken.region.blacklist.mod.ee.EESupport;
 import com.builtbroken.region.blacklist.worldguard.WorldGuardSupport;
 
 /**
@@ -38,7 +44,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 	public boolean enabledMessages = true;
 	public boolean enabledItemMessages = true;
 	public boolean enabledWarningMessages = true;
-	
+
 	public String messageItemTakeTemp = "";
 	public String messageItemTakeReturn = "";
 	public String messageItemTakeBan = "";
@@ -114,7 +120,7 @@ public class PluginRegionBlacklist extends JavaPlugin
 			}
 		}
 	}
-	
+
 	/** Loads listener that deals with Factions plugin support */
 	public void loadGriefPrevention()
 	{
@@ -160,6 +166,46 @@ public class PluginRegionBlacklist extends JavaPlugin
 			{
 				logger().info("WorldGuard plugin not installed! Skipping WorldGuard support!");
 			}
+		}
+	}
+
+	public void loadForgeSupport()
+	{
+		try
+		{
+			Class<?> clazz = Class.forName("net.minecraftforge.event.Event");
+			if (clazz != null)
+			{
+				Field f = null;
+				Event event = new Event();
+				int id = 0;
+				try
+				{
+					f = MinecraftForge.EVENT_BUS.getClass().getDeclaredField("busID");
+					f.setAccessible(true);
+					id = f.getInt(MinecraftForge.EVENT_BUS);
+				}
+				catch (NoSuchFieldException e1)
+				{
+					logger().fine("Failed to get event bus ID defaulting to zero");
+				}
+				catch (Exception e1)
+				{
+					e1.printStackTrace();
+				}
+				ForgeEventHandler handler = new ForgeEventHandler();
+				event.getListenerList().register(id, EventPriority.NORMAL, handler);
+				
+				Class<?> eeclazz = Class.forName("com.pahimar.ee3.core.handlers.WorldTransmutationHandler");
+				if (eeclazz != null)
+				{
+					handler.handlers.add(new EESupport(this));
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			logger().info("Failed to load forge support");
 		}
 	}
 
@@ -303,5 +349,4 @@ public class PluginRegionBlacklist extends JavaPlugin
 		return false;
 	}
 
-	
 }

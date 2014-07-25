@@ -162,6 +162,19 @@ public class SupportHandler implements Listener
 			}
 		}
 	}
+	
+
+	public boolean canBuild(Player player, Location location)
+	{
+		for (PluginSupport support : regionSupportListeners.values())
+		{
+			if(!support.canBuild(player, location.getBlock()))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 
 	/** Loads the config from file */
 	public void loadConfig(YamlConfiguration config)
