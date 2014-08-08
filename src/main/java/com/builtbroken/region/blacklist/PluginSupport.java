@@ -3,7 +3,10 @@ package com.builtbroken.region.blacklist;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,6 +23,9 @@ public class PluginSupport implements Listener
 {
 	private String name;
 	protected PluginRegionBlacklist plugin = null;
+	public boolean enableInventoryTracking = true;
+	public boolean detectItemUsage = true;
+	public boolean enabled = true;
 
 	public PluginSupport()
 	{
@@ -92,7 +98,7 @@ public class PluginSupport implements Listener
 			}
 			else if (action == Action.RIGHT_CLICK_BLOCK)
 			{
-				if(stackClazz.contains("PowerGauntlet"))
+				if (stackClazz.contains("PowerGauntlet"))
 				{
 					if (!canBuild(player, clickedBlock))
 					{
@@ -199,12 +205,21 @@ public class PluginSupport implements Listener
 
 	public void loadConfig(YamlConfiguration config)
 	{
-
+		this.enableInventoryTracking = config.getBoolean("settings.player.inventoryTrackingEnable", true);
+		this.detectItemUsage = config.getBoolean("settings.player.itemUsageDetection", true);
+		this.enabled = config.getBoolean("settings.enabled", true);
 	}
+
 
 	public void createConfig(YamlConfiguration config)
 	{
-
+		config.set("settings.player.inventoryTrackingEnable", enableInventoryTracking);
+		config.set("settings.player.itemUsageDetection", detectItemUsage);
+		config.set("settings.enabled", enabled);
 	}
 
+	public List<Map<?, ?>> loadMap(YamlConfiguration config, String mapName)
+	{
+		return config.getMapList(mapName);
+	}
 }

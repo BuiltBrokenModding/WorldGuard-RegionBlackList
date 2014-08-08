@@ -1,10 +1,15 @@
 package com.builtbroken.region.blacklist;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -70,7 +75,10 @@ public class SupportHandler implements Listener
 				this.lastPlayerUpdateLocation.put(player.getName(), loc.clone());
 				this.lastPlayerUpateTime.put(player.getName(), System.currentTimeMillis());
 				for (PluginSupport support : regionSupportListeners.values())
-					support.update(player, loc);
+				{
+					if (support.enableInventoryTracking)
+						support.update(player, loc);
+				}
 			}
 		}
 	}
@@ -154,21 +162,23 @@ public class SupportHandler implements Listener
 	{
 		for (PluginSupport support : regionSupportListeners.values())
 		{
-			if (!support.canUse(event.getPlayer(), event.getItem(), event.getClickedBlock(), event.getAction()))
+			if (support.detectItemUsage)
 			{
-				event.getPlayer().sendMessage(new StringBuilder().append(ChatColor.DARK_RED).append("You're not allowed to use that here.").toString());
-				event.setCancelled(true);
-				return;
+				if (!support.canUse(event.getPlayer(), event.getItem(), event.getClickedBlock(), event.getAction()))
+				{
+					event.getPlayer().sendMessage(new StringBuilder().append(ChatColor.DARK_RED).append("You're not allowed to use that here.").toString());
+					event.setCancelled(true);
+					return;
+				}
 			}
 		}
 	}
-	
 
 	public boolean canBuild(Player player, Location location)
 	{
 		for (PluginSupport support : regionSupportListeners.values())
 		{
-			if(!support.canBuild(player, location.getBlock()))
+			if (!support.canBuild(player, location.getBlock()))
 			{
 				return false;
 			}
@@ -226,8 +236,32 @@ public class SupportHandler implements Listener
 			}
 		}
 
-		for (PluginSupport support : regionSupportListeners.values())
-			support.loadConfig(config);
+		Iterator<PluginSupport> it = regionSupportListeners.values().iterator();
+		while (it.hasNext())
+		{
+			PluginSupport support = it.next();
+			try
+			{
+				File supportFile = new File(References.BASE_FOLDER + File.separator + support.getName() + ".yml");
+				YamlConfiguration supportConfig = new YamlConfiguration();
+				if (supportFile.exists())
+				{
+					supportConfig.load(supportFile);
+					support.loadConfig(supportConfig);
+					if (!support.enabled)
+						this.regionSupportListeners.remove(support.getName());
+				}
+				else
+				{
+					support.createConfig(supportConfig);
+					supportConfig.save(supportFile);
+				}
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/** Creates the config */
